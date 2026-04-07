@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <link rel="icon" href="Julsona Logo.jpg" type="image/jpeg">
+  <link rel="stylesheet" href="Julsona.css">
+  <title>Book Now — Julsona Hotels & Suites</title>
+  <style>
+    .booking-section{padding:100px 20px 60px;max-width:1000px;margin:0 auto}
+    .booking-card{background:#fff;padding:30px;border-radius:10px;box-shadow:0 6px 18px rgba(0,0,0,0.08)}
+    .entry{display:grid;grid-template-columns:1fr 1fr;gap:12px;align-items:center;margin-bottom:12px}
+    label{font-weight:600}
+    select,input[type=date],input[type=number]{padding:10px;border-radius:6px;border:1px solid #ddd;width:100%;box-sizing:border-box}
+    .actions{display:flex;gap:10px;align-items:center;margin-top:12px}
+    .btn{background:#0a2a43;color:#fff;padding:10px 16px;border-radius:6px;text-decoration:none;display:inline-block}
+    .btn.secondary{background:#b8860b;color:#000}
+    .summary{background:rgba(10,42,67,0.04);padding:16px;border-radius:8px;margin-top:20px}
+    @media (max-width:700px){.entry{grid-template-columns:1fr}}
+
+    /* Tooltip Styles */
+    .tooltip { position: relative; display: inline-block; cursor: help; margin-left: 5px; }
+    .tooltip .tooltiptext { visibility: hidden; width: 200px; background-color: #0a2a43; color: #fff; text-align: center; border-radius: 6px; padding: 8px; position: absolute; z-index: 1; bottom: 125%; left: 50%; margin-left: -100px; opacity: 0; transition: opacity 0.3s; font-size: 12px; font-weight: normal; box-shadow: 0 4px 8px rgba(0,0,0,0.2); }
+    .tooltip .tooltiptext::after { content: ""; position: absolute; top: 100%; left: 50%; margin-left: -5px; border-width: 5px; border-style: solid; border-color: #0a2a43 transparent transparent transparent; }
+    .tooltip:hover .tooltiptext { visibility: visible; opacity: 1; }
+
+    /* Modal Styles */
+    .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(10, 42, 67, 0.7); backdrop-filter: blur(4px); }
+    .modal-content { background-color: #fff; margin: 10% auto; padding: 30px; border: 2px solid #b8860b; width: 80%; max-width: 600px; border-radius: 12px; position: relative; box-shadow: 0 15px 40px rgba(0,0,0,0.4); }
+    .close-modal { color: #0a2a43; float: right; font-size: 28px; font-weight: bold; cursor: pointer; transition: color 0.3s; }
+    .close-modal:hover, .close-modal:focus { color: #b8860b; text-decoration: none; cursor: pointer; }
+    .modal-actions { margin-top: 25px; display: flex; gap: 15px; justify-content: flex-end; }
+    .modal h2 { color: #0a2a43; border-bottom: 2px solid #b8860b; padding-bottom: 10px; margin-top: 0; }
+
+    @media print {
+      body * { visibility: hidden; }
+      #result, #result * { visibility: visible; }
+      #result { position: absolute; left: 0; top: 0; width: 100%; background: white; padding: 20px; }
+      .btn { display: none !important; }
+    }
+  </style>
+</head>
+<body>
+  <div id="header-placeholder"></div>
+  
+  <!-- Your page content starts here -->
+
+    <section class="booking-section">
+    <div class="booking-card">
+      <h1>Book Now</h1>
+      <p>Select room type, room number, dates, quantity, and add more rooms if needed.</p>
+
+      <form id="booking-form">
+        <div class="entry">
+          <div>
+            <label for="customerName">Your Name</label>
+            <input id="customerName" name="customerName" required placeholder="Full name">
+          </div>
+          <div>
+            <label for="customerEmail">Email</label>
+            <input id="customerEmail" name="customerEmail" type="email" required placeholder="you@example.com">
+          </div>
+        </div>
+
+        <div style="margin-bottom: 15px; background: #f0f4f8; padding: 15px; border-radius: 6px; border-left: 4px solid #b8860b;">
+            <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; font-weight: 600; color: #0a2a43;">
+                <input type="checkbox" id="serviceApartment" name="serviceApartment" style="width: auto; height: 18px; width: 18px;">
+                <span>Book as Service Apartment (Royal Deluxe Rooms Only — ₦45,000/night)</span>
+                <div class="tooltip">ℹ️
+                    <span class="tooltiptext">Includes full kitchen access, enhanced housekeeping, and premium amenities for extended stays.</span>
+                </div>
+            </label>
+        </div>
+
+        <div id="entries"></div>
+
+        <div class="actions">
+          <button type="button" id="add-entry" class="btn secondary">+ Add another room</button>
+          <button type="submit" class="btn">Submit Booking</button>
+          <a href="rooms.html" class="btn" style="background:#888">Back</a>
+        </div>
+      </form>
+
+      <div id="result" class="summary" style="display:none"></div>
+    </div>
+  </section>
+
+  <!-- Confirmation Modal -->
+  <div id="confirmation-modal" class="modal">
+    <div class="modal-content">
+      <span class="close-modal">&times;</span>
+      <h2>Confirm Booking Details</h2>
+      <div id="confirmation-details"></div>
+      <div class="modal-actions">
+        <button id="confirm-booking-btn" class="btn">Confirm & Check Availability</button>
+        <button id="cancel-booking-btn" class="btn" style="background: #c0392b;">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://js.paystack.co/v1/inline.js"></script>
+  <script src="https://checkout.flutterwave.com/v3.js"></script>
+  <script src="booking.js"></script>
+
+<!-- Your page content ends here -->
+
+  <script>
+    fetch("header.html")
+      .then(res => res.text())
+      .then(html => {
+        document.getElementById("header-placeholder").innerHTML = html;
+      });
+  </script>
+  <script src="Julsona.js"></script>
+
+
+</body>
+</html>

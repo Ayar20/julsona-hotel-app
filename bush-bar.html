@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="Julsona Logo.jpg" type="image/jpeg">
+    <link rel="stylesheet" href="Julsona.css">
+    <title>Bush Bar – Julsona Hotels & Suites</title>
+    <style>
+        .bush-bar-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 20px;
+            width: 100%;
+            grid-column: 1 / -1;
+        }
+        .bush-bar-grid img {
+            width: 100%;
+            height: 300px;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+        @media (max-width: 768px) {
+            .bush-bar-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+  <div id="header-placeholder"></div>
+  
+    <section class="experience-section">
+        <div class="experience-container mixed-layout">
+            <div class="experience-text">
+                <h2>The Bush Bar</h2>
+                <p>
+                    Enjoy the fresh air and a relaxed atmosphere at our Bush Bar. 
+                    Surrounded by nature, it's the ideal spot for casual drinks, 
+                    evening relaxation, and enjoying our signature grilled delicacies 
+                    under the open sky.
+                </p>
+                <p>
+                    The Bush Bar offers a vibrant yet laid-back setting, perfect for 
+                    socializing with friends and family while enjoying the cool breeze.
+                </p>
+                <a href="lounge&Bar.html" class="room-link" style="margin-top: 20px;">Back to Lounge & Bar</a>
+            </div>
+            <div class="experience-side-image">
+                <img src="Bush Bar.jpeg" alt="Bush Bar Exterior">
+            </div>
+            <div class="bush-bar-grid">
+                <img src="Bush Bar2.jpeg" alt="Bush Bar Night View">
+                <img src="Images/Bushbar - 2.jpeg" alt="Bush Bar Night View">
+                <img src="Images/Bush Bar2.jpg" alt="Bush Bar Night View">
+                <img src="Images/Bushbar - Drinks.jpeg" alt="Bush Bar Night View">
+            </div>
+        </div>
+    </section>
+
+    <div id="footer-container"></div>
+
+    <!-- LIGHTBOX MODAL -->
+    <div id="lightbox-modal" class="lightbox-modal">
+        <div class="lightbox-overlay" onclick="closeLightbox()"></div>
+        <div class="lightbox-content">
+            <button class="lightbox-close" onclick="closeLightbox()">&times;</button>
+            <button class="lightbox-nav lightbox-prev" onclick="navigateImage(-1)">&#10094;</button>
+            <button class="lightbox-nav lightbox-next" onclick="navigateImage(1)">&#10095;</button>
+            <div class="lightbox-image-container">
+                <img id="lightbox-image" src="" alt="">
+            </div>
+            <div class="lightbox-controls">
+                <button class="zoom-btn" onclick="zoomIn()">+</button>
+                <button class="zoom-btn" onclick="zoomOut()">−</button>
+                <button class="zoom-btn" onclick="resetZoom()">Reset</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="lightbox.js"></script>
+    <script>
+        fetch("header.html").then(res => res.text()).then(html => {
+            document.getElementById("header-placeholder").innerHTML = html;
+        });
+    </script>
+    <script src="js/footer.js"></script>
+    <script src="Julsona.js"></script>
+</body>
+</html>

@@ -1,0 +1,427 @@
+<style>
+    /* Logo Styles */
+    .logo {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        text-decoration: none;
+    }
+
+    .logo img {
+        height: 40px;
+        border-radius: 50%;
+        transition: height 0.3s ease;
+    }
+
+    .header.shrink .logo img {
+        height: 30px;
+    }
+
+    .menu-toggle {
+        display: none;
+        background: none;
+        border: none;
+        font-size: 24px;
+        cursor: pointer;
+        color: inherit;
+        padding: 0 10px;
+        z-index: 1001;
+    }
+
+    @media (max-width: 768px) {
+        .menu-toggle {
+            display: block;
+        }
+
+        .header {
+            position: relative;
+        }
+
+        .header ul {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            width: 100%;
+            background-color: #0a2a43;
+            flex-direction: row;
+            flex-wrap: wrap;
+            justify-content: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            z-index: 1000;
+            padding: 10px 0;
+        }
+
+        .header ul.active {
+            display: flex;
+        }
+
+        .header ul li {
+            text-align: center;
+            padding: 10px;
+        }
+
+        .header ul li a {
+            display: block;
+            text-decoration: none;
+        }
+    }
+</style>
+<header class="header">
+  <a href="index.html" class="logo">
+    <img src="Julsona Logo.jpg" alt="Julsona Hotels Logo">
+    <span>Julsona Hotels & Suites Ltd</span>
+  </a>
+  <nav>
+    <button class="menu-toggle" onclick="var ul = this.nextElementSibling; ul.classList.toggle('active'); this.innerHTML = ul.classList.contains('active') ? '✕' : '☰';">☰</button>
+    <ul>
+      <li><a href="index.html">Home</a></li>
+      <li><a href="rooms.html">Rooms</a></li>
+      <li><a href="lounge&Bar.html">Lounge & Bar</a></li>   
+      <li><a href="gallery.html">Gallery</a></li>
+      <li><a href="about.html">About</a></li>
+      <li><a class="book-btn" href="booking.html">Book Now</a></li>
+    </ul>
+  </nav>
+  <div class="auth-buttons">
+    <button class="login-btn" onclick="openAuthModal('login')">Sign In / Sign Up</button>
+  </div>
+</header>
+
+<!-- AUTH MODAL -->
+<div id="authModal" class="auth-modal">
+  <div class="auth-content">
+    <span class="close-auth" onclick="closeAuthModal()">&times;</span>
+    <div class="auth-tabs">
+      <button class="auth-tab active" data-tab="login" onclick="switchAuthTab('login')">Login</button>
+      <button class="auth-tab" data-tab="signup" onclick="switchAuthTab('signup')">Sign Up</button>
+    </div>
+
+    <div id="login-form" class="auth-form active">
+      <h2>Welcome Back</h2>
+      <form>
+        <input type="email" placeholder="Email Address" required>
+        <input type="password" placeholder="Password" required>
+        <div style="text-align: right; margin-bottom: 15px;">
+            <a href="#" onclick="switchAuthTab('reset')" class="forgot-password-link">Forgot Password?</a>
+        </div>
+        <button type="submit" class="btn-submit">Login</button>
+      </form>
+    </div>
+
+    <div id="signup-form" class="auth-form">
+      <h2>Create Account</h2>
+      <form>
+        <input type="text" placeholder="Full Name" required>
+        <input type="email" placeholder="Email Address" required>
+        <input type="password" name="password" placeholder="Create Password" required>
+        <input type="password" name="confirmPassword" placeholder="Confirm Password" required>
+        <button type="submit" class="btn-submit">Sign Up</button>
+      </form>
+    </div>
+
+    <div id="reset-form" class="auth-form">
+      <h2>Reset Password</h2>
+      <p style="color: #666; margin-bottom: 20px;">Enter your email address and we'll send you a link to reset your password.</p>
+      <form>
+        <input type="email" placeholder="Email Address" required>
+        <button type="submit" class="btn-submit">Send Reset Link</button>
+        <div style="margin-top: 15px;">
+            <a href="#" onclick="switchAuthTab('login')" class="forgot-password-link">Back to Login</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- CHATBOT WIDGET -->
+<div id="chatbot-widget" class="chatbot-widget">
+    <div class="chatbot-header">
+        <div class="chatbot-avatar">T</div>
+        <div class="chatbot-title">
+            <h3>Terfa</h3>
+            <span>AI Assistant • Online</span>
+        </div>
+        <button class="chatbot-control" onclick="toggleChat()">×</button>
+    </div>
+    <div class="chatbot-messages" id="chatbot-messages">
+        <div class="chat-message bot-message">
+            Hello! I'm Terfa. I can help you check availability, book a room, or take your orders. How can I help you today?
+        </div>
+    </div>
+    <div class="chatbot-input">
+        <input type="text" id="chat-input" placeholder="Type a message..." onkeypress="handleChatInput(event)">
+        <button onclick="sendChatMessage()">Send</button>
+    </div>
+</div>
+
+<button class="chatbot-toggle" onclick="toggleChat()">
+    <span style="font-size: 24px;">💬</span>
+</button>
+
+
+
+<style>
+    /* Chatbot Styles */
+    .chatbot-toggle {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        background-color: #0a2a43;
+        color: white;
+        border: none;
+        border-radius: 50%;
+        width: 60px;
+        height: 60px;
+        cursor: pointer;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        z-index: 2000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: transform 0.3s;
+    }
+    .chatbot-toggle:hover { transform: scale(1.1); }
+    
+    .chatbot-widget {
+        display: none;
+        position: fixed;
+        bottom: 90px;
+        right: 20px;
+        width: 350px;
+        height: 450px;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 5px 25px rgba(0,0,0,0.2);
+        z-index: 2000;
+        flex-direction: column;
+        overflow: hidden;
+        font-family: 'Segoe UI', sans-serif;
+        border: 1px solid #eee;
+    }
+    .chatbot-widget * { box-sizing: border-box; }
+    
+    .chatbot-widget.active { display: flex; }
+    
+    .chatbot-header {
+        background: #0a2a43;
+        color: white;
+        padding: 15px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-shrink: 0;
+        position: relative;
+        z-index: 10;
+    }
+    
+    .chatbot-avatar {
+        width: 35px;
+        height: 35px;
+        background: #b8860b;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        color: #fff;
+    }
+    
+    .chatbot-title h3 { margin: 0; font-size: 16px; }
+    .chatbot-title span { font-size: 12px; color: #ccc; }
+    .chatbot-control { background: none; border: none; color: white; font-size: 20px; cursor: pointer; margin-left: 10px; }
+    #voice-toggle-btn { margin-left: auto; }
+    
+    .chatbot-messages { flex: 1; padding: 15px; overflow-y: auto; background: #f9f9f9; display: flex; flex-direction: column; gap: 10px; }
+    
+    .chat-message { max-width: 80%; padding: 10px 15px; border-radius: 15px; font-size: 14px; line-height: 1.4; overflow-wrap: break-word; word-wrap: break-word; word-break: break-word; min-width: 0; }
+    .bot-message { background: #e9ecef; color: #333; align-self: flex-start; border-bottom-left-radius: 2px; }
+    .user-message { background: #0a2a43; color: white; align-self: flex-end; border-bottom-right-radius: 2px; }
+    
+    .chatbot-input { padding: 10px; border-top: 1px solid #eee; display: flex; gap: 10px; background: white; flex-shrink: 0; }
+    .chatbot-input input { flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 20px; outline: none; }
+    .chatbot-input button { background: #0a2a43; color: white; border: none; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; }
+    
+    @media (max-width: 480px) {
+        .chatbot-widget { width: 100%; height: 100%; bottom: 0; right: 0; border-radius: 0; }
+        .chatbot-toggle { bottom: 10px; right: 10px; }
+    }
+
+    /* Auth Modal Styles */
+    .auth-modal {
+        display: none;
+        position: fixed;
+        z-index: 3000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0,0,0,0.5);
+    }
+
+    .auth-content {
+        background-color: #fefefe;
+        margin: 5% auto;
+        padding: 0;
+        border: 1px solid #888;
+        width: 90%;
+        max-width: 400px;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        position: relative;
+    }
+
+    .close-auth {
+        position: absolute;
+        right: 15px;
+        top: 10px;
+        color: #aaa;
+        font-size: 28px;
+        font-weight: bold;
+        cursor: pointer;
+        z-index: 1;
+    }
+
+    .close-auth:hover { color: black; }
+
+    .auth-tabs {
+        display: flex;
+        border-bottom: 1px solid #ddd;
+    }
+
+    .auth-tab {
+        flex: 1;
+        padding: 15px;
+        background: none;
+        border: none;
+        cursor: pointer;
+        font-size: 16px;
+        font-weight: 500;
+        color: #666;
+        border-bottom: 2px solid transparent;
+        transition: all 0.3s;
+    }
+
+    .auth-tab.active {
+        color: #0a2a43;
+        border-bottom-color: #0a2a43;
+    }
+
+    .auth-form {
+        display: none;
+        padding: 30px;
+    }
+
+    .auth-form.active { display: block; }
+
+    .auth-form h2 {
+        text-align: center;
+        margin-bottom: 20px;
+        color: #0a2a43;
+    }
+
+    .auth-form input {
+        width: 100%;
+        padding: 12px;
+        margin: 8px 0;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        box-sizing: border-box;
+        font-size: 14px;
+    }
+
+    .auth-form input:focus {
+        outline: none;
+        border-color: #0a2a43;
+        box-shadow: 0 0 5px rgba(10,42,67,0.3);
+    }
+
+    .btn-submit {
+        width: 100%;
+        padding: 12px;
+        background-color: #0a2a43;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 16px;
+        margin-top: 10px;
+        transition: background-color 0.3s;
+    }
+
+    .btn-submit:hover { background-color: #0d3a5c; }
+
+    .forgot-password-link {
+        color: #0a2a43;
+        text-decoration: none;
+        font-size: 14px;
+    }
+
+    .forgot-password-link:hover { text-decoration: underline; }
+
+    .auth-buttons .login-btn {
+        background-color: #0a2a43;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 14px;
+        transition: background-color 0.3s;
+    }
+
+    .auth-buttons .login-btn:hover { background-color: #0d3a5c; }
+
+    .user-info {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .user-name {
+        color: white;
+        font-weight: 500;
+    }
+
+    .logout-btn {
+        background: none;
+        border: 1px solid white;
+        color: white;
+        padding: 5px 10px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 12px;
+        transition: all 0.3s;
+    }
+
+    .logout-btn:hover {
+        background: white;
+        color: #0a2a43;
+    }
+
+    .message {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        padding: 15px 20px;
+        border-radius: 5px;
+        color: white;
+        font-weight: 500;
+        z-index: 4000;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        animation: slideIn 0.3s ease;
+    }
+
+    .message.success { background-color: #4CAF50; }
+    .message.error { background-color: #f44336; }
+
+    @keyframes slideIn {
+        from { transform: translateX(100%); opacity: 0; }
+        to { transform: translateX(0); opacity: 1; }
+    }
+
+    @keyframes slideOut {
+        from { transform: translateX(0); opacity: 1; }
+        to { transform: translateX(100%); opacity: 0; }
+    }
+</style>

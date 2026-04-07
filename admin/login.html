@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login - Julsona Hotels</title>
+    <link rel="stylesheet" href="../css/admin.css">
+</head>
+<body>
+    <div class="auth-container">
+        <div class="login-card">
+            <div class="login-header">
+                <h2>Admin Portal</h2>
+                <p>Please sign in to continue</p>
+            </div>
+            <form id="login-form">
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" name="username" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" required>
+                </div>
+                <button type="submit" class="btn-admin">Sign In</button>
+            </form>
+            <p id="error-msg" style="color: red; margin-top: 1rem; display: none;"></p>
+        </div>
+    </div>
+
+    <script src="../js/admin.js"></script>
+    <script>
+        // Init Login Logic
+        document.addEventListener('DOMContentLoaded', () => {
+            const token = sessionStorage.getItem('admin_token');
+            if (token) {
+                window.location.href = 'dashboard.html';
+            }
+        });
+    </script>
+</body>
+</html>

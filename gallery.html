@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="Julsona Logo.jpg" type="image/jpeg">
+    <link rel="stylesheet" href="Julsona.css">
+    <title>Gallery – Julsona Hotels & Suites</title>
+</head>
+
+<body>
+  <div id="header-placeholder"></div>
+  
+  <!-- Your page content starts here -->
+
+     <!-- GALLERY -->
+    <section id="gallery" class="gallery-section">
+        <h2>Gallery</h2>
+        <div class="gallery-grid">
+            <div class="gallery-item">
+                <img src="Room201.jpeg" alt="Deluxe Room" onclick="openLightbox(this.src)">
+                <div class="gallery-caption">Deluxe Room</div>
+            </div>
+            <div class="gallery-item">
+                <img src="Room 202.jpeg" alt="Executive Deluxe Room" onclick="openLightbox(this.src)">
+                <div class="gallery-caption">Executive Deluxe Room</div>
+            </div>
+            <div class="gallery-item">
+                <img src="Room 208.jpg" alt="Royal Deluxe Room" onclick="openLightbox(this.src)">
+                <div class="gallery-caption">Royal Deluxe Room</div>
+            </div>
+            <div class="gallery-item">
+                <img src="Bush Bar.jpeg" alt="Bush Bar" onclick="openLightbox(this.src)">
+                <div class="gallery-caption">Bush Bar</div>
+            </div>
+            <div class="gallery-item">
+                <img src="Bush Bar2.jpeg" alt="Bush Bar 2" onclick="openLightbox(this.src)">
+                <div class="gallery-caption">Bush Bar 2</div>
+            </div>
+            <div class="gallery-item">
+                <img src="Julsona VIP Bar.jpeg" alt="VIP Bar" onclick="openLightbox(this.src)">
+                <div class="gallery-caption">VIP Bar</div>
+            </div>
+            <div class="gallery-item">
+                <img src="Julsona VIP Bar2.jpeg" alt="VIP Bar 2" onclick="openLightbox(this.src)">
+                <div class="gallery-caption">VIP Bar 2</div>
+            </div>
+            <div class="gallery-item">
+                <img src="Kitchen.jpeg" alt="Kitchen" onclick="openLightbox(this.src)">
+                <div class="gallery-caption">Kitchen</div>
+            </div>
+            <div class="gallery-item">
+                <img src="Laundry.jpeg" alt="Laundry" onclick="openLightbox(this.src)">
+                <div class="gallery-caption">Laundry</div>
+            </div>
+            <div class="gallery-item">
+                <img src="Outside the Hotel.jpeg" alt="Outside the Hotel" onclick="openLightbox(this.src)">
+                <div class="gallery-caption">Outside the Hotel</div>
+            </div>
+            <div class="gallery-item">
+                <img src="Outside View.jpeg" alt="Outside View" onclick="openLightbox(this.src)">
+                <div class="gallery-caption">Outside View</div>
+            </div>
+            <div class="gallery-item">
+                <img src="Room 202.jpeg" alt="Room 202" onclick="openLightbox(this.src)">
+                <div class="gallery-caption">Room 202</div>
+            </div>
+            <div class="gallery-item">
+                <img src="Room201.jpeg" alt="Room 201" onclick="openLightbox(this.src)">
+                <div class="gallery-caption">Room 201</div>
+            </div>
+            <div class="gallery-item">
+                <img src="Standby Generator.jpeg" alt="Standby Generator" onclick="openLightbox(this.src)">
+                <div class="gallery-caption">Standby Generator</div>
+            </div>
+        </div>
+    </section>
+
+    <div id="footer-container"></div>
+
+<script src="lightbox.js"></script>
+<!-- Your page content ends here -->
+
+  <script>
+    fetch("header.html")
+      .then(res => res.text())
+      .then(html => {
+        const headerPlaceholder = document.getElementById("header-placeholder");
+        headerPlaceholder.innerHTML = html;
+      });
+  </script>
+
+  <script src="js/footer.js"></script>
+  <script src="Julsona.js"></script>
+
+</body>
+</html>

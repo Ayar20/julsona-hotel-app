@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Julsona Hotels Ltd</title>
+    <!-- Note the ../ to go up one folder level to find the CSS -->
+    <link rel="stylesheet" href="../Julsona.css">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
+        .admin-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            padding: 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        .admin-content { padding: 20px; }
+        h2 { margin-top: 0; color: #333; border-bottom: 2px solid #C5A059; padding-bottom: 10px; font-size: 24px; text-align: left; }
+        .review-card {
+            border-bottom: 1px solid #eee;
+            padding: 15px 0;
+        }
+        .no-data { text-align: center; color: #777; margin-top: 20px; padding: 20px; background: #f9f9f9; border-radius: 4px; }
+    </style>
+</head>
+<body>
+    <div class="admin-container">
+        <div style="padding: 20px 20px 0;">
+            <a href="../index.html" style="text-decoration: none; color: #0a2a43; font-weight: bold; font-size: 14px;">&larr; Back to Website</a>
+        </div>
+        <!-- Navigation Tabs -->
+        <div class="admin-nav">
+            <button class="tab-btn active" onclick="openTab('bookings')">Bookings</button>
+            <button class="tab-btn" onclick="openTab('rooms')">Room Management</button>
+            <button class="tab-btn" onclick="openTab('payments')">Paystack Records</button>
+            <button class="tab-btn" onclick="openTab('reviews')">Guest Reviews</button>
+        </div>
+
+        <div class="admin-content">
+            
+            <!-- BOOKINGS SECTION -->
+            <div id="bookings" class="admin-section active">
+                <h2>Manage Bookings</h2>
+                <div style="overflow-x: auto;">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Ref ID</th>
+                                <th>Guest Name</th>
+                                <th>Room</th>
+                                <th>Check-in</th>
+                                <th>Nights</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="bookings-list">
+                            <!-- Populated by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- ROOM MANAGEMENT SECTION -->
+            <div id="rooms" class="admin-section">
+                <h2>Room Availability & Pricing</h2>
+                <p style="color: #666; margin-bottom: 20px;">Toggle availability to show/hide rooms on the website or update current rates.</p>
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>Room Type</th>
+                            <th>Room Number</th>
+                            <th>Current Price (₦)</th>
+                            <th>Availability</th>
+                            <th>Update</th>
+                        </tr>
+                    </thead>
+                    <tbody id="rooms-list">
+                        <!-- Populated by JS -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- PAYMENTS SECTION -->
+            <div id="payments" class="admin-section">
+                <h2>Paystack Transaction Records</h2>
+                <div style="overflow-x: auto;">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Reference</th>
+                                <th>Amount</th>
+                                <th>Channel</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="payments-list">
+                            <!-- Populated by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- REVIEWS SECTION -->
+            <div id="reviews" class="admin-section">
+                <h2>Guest Reviews</h2>
+                <div id="admin-reviews-list"></div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        // --- TAB LOGIC ---
+        function openTab(tabName) {
+            // Hide all sections
+            document.querySelectorAll('.admin-section').forEach(sec => sec.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            
+            // Show selected
+            document.getElementById(tabName).classList.add('active');
+            event.currentTarget.classList.add('active');
+        }
+
+        // --- DATA INITIALIZATION (MOCK DATA) ---
+        function initMockData() {
+            if (!localStorage.getItem('hotelBookings')) {
+                const mockBookings = [
+                    { id: 'BKG-001', name: 'John Doe', room: 'Deluxe (202)', date: '2024-12-28', nights: 2, status: 'confirmed' },
+                    { id: 'BKG-002', name: 'Sarah Smith', room: 'Royal (206)', date: '2024-12-29', nights: 1, status: 'pending' },
+                    { id: 'BKG-003', name: 'Mike Johnson', room: 'Executive (201)', date: '2024-12-30', nights: 3, status: 'cancelled' }
+                ];
+                localStorage.setItem('hotelBookings', JSON.stringify(mockBookings));
+            }
+
+            if (!localStorage.getItem('hotelPayments')) {
+                const mockPayments = [
+                    { date: '2024-12-28', ref: 'T839202930', amount: '30,000', channel: 'card', status: 'success' },
+                    { date: '2024-12-27', ref: 'T839202111', amount: '25,000', channel: 'bank_transfer', status: 'success' },
+                    { date: '2024-12-26', ref: 'T839202000', amount: '15,000', channel: 'card', status: 'failed' }
+                ];
+                localStorage.setItem('hotelPayments', JSON.stringify(mockPayments));
+            }
+
+            // Default Room Settings
+            const existingRooms = JSON.parse(localStorage.getItem('roomSettings'));
+            if (!existingRooms || existingRooms.length < 8 || existingRooms[0].number === '101') {
+                const defaultRooms = [
+                    { type: 'Deluxe', number: '202', price: 15000, available: true },
+                    { type: 'Deluxe', number: '205', price: 15000, available: true },
+                    { type: 'Executive', number: '201', price: 20000, available: true },
+                    { type: 'Executive', number: '203', price: 20000, available: true },
+                    { type: 'Executive', number: '204', price: 20000, available: true },
+                    { type: 'Royal', number: '206', price: 25000, available: true },
+                    { type: 'Royal', number: '207', price: 25000, available: true },
+                    { type: 'Royal', number: '208', price: 25000, available: true }
+                ];
+                localStorage.setItem('roomSettings', JSON.stringify(defaultRooms));
+            }
+        }
+
+        // --- RENDER FUNCTIONS ---
+        function renderBookings() {
+            const bookings = JSON.parse(localStorage.getItem('hotelBookings') || '[]');
+            const tbody = document.getElementById('bookings-list');
+            tbody.innerHTML = '';
+            if(bookings.length === 0) { tbody.innerHTML = '<tr><td colspan="7" class="no-data">No bookings found.</td></tr>'; return; }
+            bookings.forEach(b => {
+                tbody.innerHTML += `<tr><td>${b.id}</td><td>${b.name}</td><td>${b.room}</td><td>${b.date}</td><td>${b.nights}</td><td><span class="status-badge status-${b.status}">${b.status}</span></td><td><button class="action-btn btn-success" onclick="alert('Booking Confirmed!')">✓</button><button class="action-btn btn-danger" onclick="alert('Booking Cancelled!')">✕</button></td></tr>`;
+            });
+        }
+
+        function renderRooms() {
+            const rooms = JSON.parse(localStorage.getItem('roomSettings') || '[]');
+            const tbody = document.getElementById('rooms-list');
+            tbody.innerHTML = '';
+            rooms.forEach((r, index) => {
+                tbody.innerHTML += `<tr><td>${r.type}</td><td>${r.number}</td><td><input type="number" value="${r.price}" style="width: 80px; padding: 5px;"></td><td><label class="switch"><input type="checkbox" ${r.available ? 'checked' : ''} onchange="toggleRoom(${index})"><span class="slider"></span></label></td><td><button class="action-btn btn-success" onclick="alert('Price updated for Room ${r.number}')">Save</button></td></tr>`;
+            });
+        }
+
+        function renderPayments() {
+            const payments = JSON.parse(localStorage.getItem('hotelPayments') || '[]');
+            const tbody = document.getElementById('payments-list');
+            tbody.innerHTML = '';
+            payments.forEach(p => {
+                tbody.innerHTML += `<tr><td>${p.date}</td><td>${p.ref}</td><td>₦${p.amount}</td><td>${p.channel}</td><td><span class="status-badge status-${p.status}">${p.status}</span></td></tr>`;
+            });
+        }
+
+        function renderReviews() {
+            const reviews = JSON.parse(localStorage.getItem('hotelReviews') || '[]');
+            const container = document.getElementById('admin-reviews-list');
+            if (reviews.length === 0) { container.innerHTML = '<div class="no-data">No reviews found.</div>'; } else { container.innerHTML = ''; reviews.forEach(review => { const stars = '★'.repeat(review.rating) + '☆'.repeat(5 - review.rating); container.innerHTML += `<div class="review-card"><div style="display:flex; justify-content:space-between; margin-bottom:5px; color:#555;"><strong>${review.name || 'Anonymous'}</strong><span>${review.date}</span></div><div style="color:#C5A059;">${stars}</div><p style="margin:5px 0 0; color:#333;">${review.comment}</p></div>`; }); }
+        }
+
+        function toggleRoom(index) {
+            const rooms = JSON.parse(localStorage.getItem('roomSettings'));
+            rooms[index].available = !rooms[index].available;
+            localStorage.setItem('roomSettings', JSON.stringify(rooms));
+        }
+
+        document.addEventListener('DOMContentLoaded', () => { initMockData(); renderBookings(); renderRooms(); renderPayments(); renderReviews(); });
+    </script>
+</body>
+</html>

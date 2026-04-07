@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="Julsona Logo.jpg" type="image/jpeg">
+    <title>Royal Deluxe Rooms – Julsona Hotels & Suites</title>
+    <link rel="stylesheet" href="Julsona.css">
+    <style>
+        .rooms-detail-section {
+            padding: 100px 40px 60px;
+            background: #fafafa;
+        }
+
+        .room-detail-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .room-card-detail {
+            background: #fff;
+            border-radius: 12px;
+            padding: 40px;
+            margin-bottom: 50px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .room-card-detail h3 {
+            color: #0a2a43;
+            font-size: 28px;
+            margin-top: 0;
+            margin-bottom: 10px;
+        }
+
+        .room-card-detail p {
+            font-size: 18px;
+            line-height: 1.6;
+            color: #444;
+            margin: 10px 0;
+            text-align: justify;
+        }
+
+        .room-images {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 25px 0;
+        }
+
+        .room-images img {
+            width: 100%;
+            height: 220px;
+            object-fit: cover;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            transition: transform 0.3s ease;
+        }
+
+        .room-images img:hover {
+            transform: scale(1.05);
+        }
+
+        .book-room-btn {
+            display: inline-block;
+            background: #b8860b;
+            color: #000;
+            padding: 15px 40px;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: bold;
+            font-size: 18px;
+            margin-top: 20px;
+            transition: background 0.3s ease;
+        }
+
+        .book-room-btn:hover {
+            background: #8b6508;
+        }
+
+        .category-title {
+            color: #0a2a43;
+            font-size: 40px;
+            text-align: center;
+            margin-bottom: 15px;
+            margin-top: 0;
+        }
+
+        .category-info {
+            background: rgba(10, 42, 67, 0.08);
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .category-info p {
+            font-size: 18px;
+            margin: 10px 0;
+        }
+
+        .price-badge {
+            display: inline-block;
+            background: #e6b800;
+            color: #000;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 18px;
+            margin: 10px 5px;
+        }
+
+        @media (max-width: 768px) {
+            .rooms-detail-section {
+                padding: 80px 20px 40px;
+            }
+
+            .room-card-detail {
+                padding: 20px;
+            }
+
+            .category-title {
+                font-size: 28px;
+            }
+
+            .room-images {
+                grid-template-columns: 1fr;
+            }
+             }
+        /* Specific layout for Room 206 */
+        .room-206-layout {
+            display: grid;
+            grid-template-columns: 40% 1fr;
+            gap: 20px;
+            margin: 25px 0;
+        }
+        .room-206-video-container {
+            position: relative;
+            height: 100%;
+        }
+        .room-206-video-container video {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        .room-206-images-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(2, 1fr);
+            gap: 15px;
+            height: auto;
+        }
+        .room-206-images-grid img {
+            width: 100%;
+            height: 220px;
+            object-fit: cover;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            transition: transform 0.3s ease;
+        }
+        .room-206-images-grid img:hover {
+            transform: scale(1.05);
+        }
+        @media (max-width: 768px) {
+            .room-206-layout {
+                grid-template-columns: 1fr;
+            }
+            .room-206-video-container {
+                height: 300px;
+            }
+            .room-206-images-grid {
+                grid-template-columns: repeat(2, 1fr);
+                grid-template-rows: auto;
+                height: auto;
+            }
+            .room-206-images-grid img {
+                height: 150px;
+            }
+             }
+        /* Specific layout for Room 207 */
+        .room-207-layout {
+            display: grid;
+            grid-template-columns: 40% 1fr;
+            gap: 20px;
+            margin: 25px 0;
+        }
+        .room-207-video-container {
+            position: relative;
+            height: 100%;
+        }
+        .room-207-video-container video {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        .room-207-images-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(2, 1fr);
+            gap: 15px;
+            height: auto;
+        }
+        .room-207-images-grid img {
+            width: 100%;
+            height: 220px;
+            object-fit: cover;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            transition: transform 0.3s ease;
+        }
+        .room-207-images-grid img:hover {
+            transform: scale(1.05);
+        }
+        @media (max-width: 768px) {
+            .room-207-layout {
+                grid-template-columns: 1fr;
+            }
+            .room-207-video-container {
+                height: 300px;
+            }
+            .room-207-images-grid {
+                grid-template-columns: repeat(2, 1fr);
+                grid-template-rows: auto;
+                height: auto;
+            }
+            .room-207-images-grid img {
+                height: 150px;
+            }
+        }
+        /* Specific layout for Room 208 */
+        .room-208-layout {
+            display: grid;
+            grid-template-columns: 40% 1fr;
+            gap: 20px;
+            margin: 25px 0;
+        }
+        .room-208-video-container {
+            position: relative;
+            height: 100%;
+        }
+        .room-208-video-container video {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        .room-208-images-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(2, 1fr);
+            gap: 15px;
+            height: auto;
+        }
+        .room-208-images-grid img {
+            width: 100%;
+            height: 220px;
+            object-fit: cover;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            transition: transform 0.3s ease;
+        }
+        .room-208-images-grid img:hover {
+            transform: scale(1.05);
+        }
+        @media (max-width: 768px) {
+            .room-208-layout {
+                grid-template-columns: 1fr;
+            }
+            .room-208-video-container {
+                height: 300px;
+            }
+            .room-208-images-grid {
+                grid-template-columns: repeat(2, 1fr);
+                grid-template-rows: auto;
+                height: auto;
+            }
+            .room-208-images-grid img {
+                height: 150px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="header-placeholder"></div>
+
+    <!-- ROOM DETAILS SECTION -->
+    <section class="rooms-detail-section">
+        <div class="room-detail-container">
+
+            <a href="rooms.html" class="back-link">← Back to Rooms</a>
+
+            <h1 class="category-title">Royal Deluxe Rooms</h1>
+            
+            <div class="category-info">
+                <p><strong>Price:</strong> <br>
+                    <span class="price-badge">₦25,000 per night</span> <br>
+                    <span class="price-badge">₦45,000 Service Apartment per night</span>
+                </p>
+                <p><strong>Available Rooms:</strong> 3</p>
+                <p>Spacious, luxurious, and naturally serene. Our Royal Deluxe rooms represent the pinnacle of comfort and elegance with premium decor and personalized service.</p>
+                <p><strong>Service Apartment Option:</strong> This option includes full access to kitchen facilities, enhanced daily housekeeping, and premium amenities tailored for extended stays, providing a complete home-away-from-home experience.</p>
+                <p><strong>Features:</strong> The room is designed to offer a calm, modern living experience, featuring a fully equipped kitchen, a refrigerator for fresh storage, a high‑definition television for effortless entertainment, powerful air conditioning that keeps the space cool, a luxurious bathroom finished with elegant details, a dedicated reading table for work or study, a spacious wardrobe for organized comfort, and a luxurious ceiling fan set into a POP design that adds a subtle touch of sophistication.</p>
+            </div>
+
+            <!-- ROOM 206 -->
+            <div class="room-card-detail">
+                <h3>Royal Deluxe</h3>
+                <p><strong>Room Number:</strong>206 — Royal Suite</p>
+                <p><strong>Price:</strong> ₦25,000 per night <br> <strong>Service Apartment:</strong> ₦45,000 per night</p>
+                <p><strong>Features:</strong> The room is designed to offer a calm, modern living experience, featuring a fully equipped kitchen, a refrigerator for fresh storage, a high‑definition television for effortless entertainment, powerful air conditioning that keeps the space cool, a luxurious bathroom finished with elegant details, a dedicated reading table for work or study, a spacious wardrobe for organized comfort, and a luxurious ceiling fan set into a POP design that adds a subtle touch of sophistication.</p>
+                
+                <h4 style="color: #0a2a43; margin-top: 25px;">Room Photos</h4>
+                <div class="room-206-layout">
+                    <div class="room-206-video-container">
+                        <video src="Images/Room 206- Coverage.mp4" controls autoplay muted loop></video>
+                    </div>
+                    <div class="room-206-images-grid">
+                        <img src="Images/Room 206-Bed.jpeg" alt="Room 206 - Photo 1">
+                        <img src="Images/Room 206 -Reading Table.jpeg" alt="Room 206 - Photo 2">
+                        <img src="Images/Room 206 -TV.jpeg" alt="Room 206 - Photo 3">
+                        <img src="Images/Room 206 -Window View.jpeg" alt="Room 206 - Photo 4">
+                        <img src="Images/Room 206 -Kitchen.jpeg" alt="Room 206 - Photo 5">
+                        <img src="Images/Room 206 - Bathroom.jpeg" alt="Room 206 - Photo 6">
+                    </div>
+                </div>
+                                
+                <a href="booking.html?roomType=Royal%20Deluxe&roomNumber=206" class="book-room-btn">Book Room 206 Now</a>
+                <a href="booking.html?roomType=Royal%20Deluxe&roomNumber=206&serviceApartment=true" class="book-room-btn" style="background: #b8860b; margin-left: 10px;">Book Room 206 as Service Apartment</a>
+            </div>
+
+            <!-- ROOM 207 -->
+            <div class="room-card-detail">
+                <h3>Royal Deluxe</h3>
+                <p><strong>Room Number:</strong> 207 — Penthouse Suite</p>
+                <p><strong>Price:</strong> ₦25,000 per night <br> <strong>Service Apartment:</strong> ₦45,000 per night</p>
+                <p><strong>Features:</strong> The room is designed to offer a calm, modern living experience, featuring a fully equipped kitchen, a refrigerator for fresh storage, a high‑definition television for effortless entertainment, powerful air conditioning that keeps the space cool, a luxurious bathroom finished with elegant details, a dedicated reading table for work or study, a spacious wardrobe for organized comfort, and a luxurious ceiling fan set into a POP design that adds a subtle touch of sophistication.</p>
+                
+                <h4 style="color: #0a2a43; margin-top: 25px;">Room Photos</h4>
+                <div class="room-207-layout">
+                    <div class="room-207-video-container">
+                        <video src="Images/Room 207 - Coverage.mp4" controls autoplay muted loop></video>
+                    </div>
+                    <div class="room-207-images-grid">
+                        <img src="Images/Room 207 - Bed.jpeg" alt="Room 207 - Photo 1">
+                        <img src="Images/Room 207 - window.jpeg" alt="Room 207 - Photo 2">
+                        <img src="Images/Room 207 - TV&AC.jpeg" alt="Room 207 - Photo 3">
+                        <img src="Images/Room 207 -Reading Table.jpeg" alt="Room 207 - Photo 4">
+                        <img src="Images/Room 207 -Kitchen.jpeg" alt="Room 207 - Photo 5">
+                        <img src="Images/Room 207 - Bathroom.jpeg" alt="Room 207 - Photo 6">
+                    </div>
+                </div>
+                
+                <a href="booking.html?roomType=Royal%20Deluxe&roomNumber=207" class="book-room-btn">Book Room 207 Now</a>
+                <a href="booking.html?roomType=Royal%20Deluxe&roomNumber=207&serviceApartment=true" class="book-room-btn" style="background: #b8860b; margin-left: 10px;">Book Room 207 as Service Apartment</a>
+            </div>
+
+            <!-- ROOM 208 -->
+            <div class="room-card-detail">
+                <h3>Royal Deluxe</h3>
+                <p><strong>Room Number:</strong> 208 — Deluxe Palace Suite</p>
+                <p><strong>Price:</strong> ₦25,000 per night <br> <strong>Service Apartment:</strong> ₦45,000 per night</p>
+                <p><strong>Features:</strong> The room is designed to offer a calm, modern living experience, featuring a fully equipped kitchen, a refrigerator for fresh storage, a high‑definition television for effortless entertainment, powerful air conditioning that keeps the space cool, a luxurious bathroom finished with elegant details, a dedicated reading table for work or study, a spacious wardrobe for organized comfort, and a luxurious ceiling fan set into a POP design that adds a subtle touch of sophistication.</p>
+                
+                <h4 style="color: #0a2a43; margin-top: 25px;">Room Photos</h4>
+                <div class="room-208-layout">
+                    <div class="room-208-video-container">
+                        <video src="Images/Room 208 - Room Coverage.mp4" controls autoplay muted loop></video>
+                    </div>
+                    <div class="room-208-images-grid">
+                        <img src="Images/Room 208 - Bed.jpeg" alt="Room 208 - Photo 1">
+                        <img src="Images/Room 208 - Window view.jpeg" alt="Room 208 - Photo 2">
+                        <img src="Images/Room 208 - TV view.jpeg" alt="Room 208 - Photo 3">
+                        <img src="Images/Room 208 - Bathroom.jpeg" alt="Room 208 - Photo 4">
+                        <img src="Images/Room 208 - Kitchen1.jpeg" alt="Room 208 - Photo 5">
+                        <img src="Images/Room 208 - Waderobe.jpeg" alt="Room 208 - Photo 6">
+                    </div>
+                </div>
+                
+                <a href="booking.html?roomType=Royal%20Deluxe&roomNumber=208" class="book-room-btn">Book Room 208 Now</a>
+                <a href="booking.html?roomType=Royal%20Deluxe&roomNumber=208&serviceApartment=true" class="book-room-btn" style="background: #b8860b; margin-left: 10px;">Book Room 208 as Service Apartment</a>
+            </div>
+
+        </div>
+    </section>
+
+    <div id="footer-container"></div>
+
+<!-- LIGHTBOX MODAL FOR IMAGE ZOOM -->
+<div id="lightbox-modal" class="lightbox-modal">
+    <div class="lightbox-overlay" onclick="closeLightbox()"></div>
+    <div class="lightbox-content">
+        <button class="lightbox-close" onclick="closeLightbox()">&times;</button>
+        <button class="lightbox-close-float" onclick="closeLightbox()" title="Close (ESC)">
+            <span>&times;</span>
+        </button>
+        <button class="lightbox-nav lightbox-prev" onclick="navigateImage(-1)">&#10094;</button>
+        <button class="lightbox-nav lightbox-next" onclick="navigateImage(1)">&#10095;</button>
+
+        <div class="lightbox-image-container">
+            <img id="lightbox-image" src="" alt="">
+        </div>
+
+        <div class="lightbox-controls">
+            <button class="zoom-btn" onclick="zoomIn()">+</button>
+            <button class="zoom-btn" onclick="zoomOut()">−</button>
+            <button class="zoom-btn" onclick="resetZoom()">Reset</button>
+            <span class="zoom-level" id="zoom-level">100%</span>
+            <div class="exit-hint">
+                <span>Exit: ESC • Double-click • Right-click</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="lightbox.js"></script>
+<script src="js/footer.js"></script>
+<script src="Julsona.js"></script>
+<script>
+    fetch("header.html")
+      .then(res => res.text())
+      .then(html => {
+        document.getElementById("header-placeholder").innerHTML = html;
+      });
+</script>
+
+</body>
+</html>

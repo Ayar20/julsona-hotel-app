@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Julsona Hotels</title>
+    <link rel="stylesheet" href="../css/admin.css">
+</head>
+<body>
+    <header class="admin-header">
+        <div class="admin-brand">Julsona Admin</div>
+        <div class="admin-nav">
+            <span id="admin-user">Admin</span> | 
+            <button id="logout-btn">Logout</button>
+        </div>
+    </header>
+
+    <div class="dashboard-container">
+        <!-- Stats -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h3>Total Bookings</h3>
+                <div class="value" id="stats-total">0</div>
+            </div>
+            <div class="stat-card">
+                <h3>Revenue (Est.)</h3>
+                <div class="value" id="stats-revenue">₦0</div>
+            </div>
+            <div class="stat-card">
+                <h3>Check-ins Today</h3>
+                <div class="value" id="stats-checkins">0</div>
+            </div>
+        </div>
+
+        <!-- Booking Table -->
+        <div class="table-container">
+            <div class="table-header">
+                <h2>Recent Bookings</h2>
+                <button class="btn-admin" style="width: auto; padding: 8px 16px;" onclick="loadAdminData()">Refresh</button>
+            </div>
+            <div class="table-responsive">
+                <table id="bookings-table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Customer</th>
+                            <th>Room</th>
+                            <th>Check-In / Out</th>
+                            <th>Amount</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td colspan="7" style="text-align: center;">Loading...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/admin.js"></script>
+    <script>
+        // Check Auth
+        if (!sessionStorage.getItem('admin_token')) {
+            window.location.href = 'login.html';
+        } else {
+            // Load dashboard
+            loadAdminData();
+        }
+    </script>
+</body>
+</html>

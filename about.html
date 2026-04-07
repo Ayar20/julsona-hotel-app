@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="Julsona Logo.jpg" type="image/jpeg">
+    <link rel="stylesheet" href="Julsona.css">
+    <title>About Us – Julsona Hotels & Suites</title>
+</head>
+
+<body>
+  <div id="header-placeholder"></div>
+  
+  <!-- Your page content starts here -->
+
+        <!-- ABOUT -->
+    <section id="about" class="about-section">
+    <div class="about-container">
+
+        <!-- TEXT SIDE -->
+        <div class="about-text">
+            <h2 class="fade-in">A Luxurious Escape in the Heart of Makurdi</h2>
+
+            <p class="fade-in delay-1">
+                At Julsona Hotels & Suites, we redefine comfort with a blend of modern elegance,
+                warm hospitality, and a serene atmosphere crafted for both leisure and business travelers.
+                Every detail of our hotel is designed to offer a refined experience that feels effortless,
+                intimate, and unforgettable.
+            </p>
+
+            <p class="fade-in delay-2">
+                From our beautifully furnished rooms to our premium bar and lounge spaces,
+                Julsona stands as a sanctuary where sophistication meets relaxation.
+            </p>
+
+            <h3 class="fade-in delay-3">Our Premium Facilities</h3>
+
+            <ul class="facility-list fade-in delay-4">
+                <li>Deluxe, Executive Deluxe & Royal Deluxe Rooms</li>
+                <li>On‑site Kitchen</li>
+                <li>Lounge & Bar Experience</li>
+                <li>24/7 Security & CCTV Surveillance</li>
+                <li>Daily Housekeeping & Room Service</li>
+                <li>Free Wifi</li>
+                <li>Uninterrupted Power Supply</li>
+                <li>Excellent Customer Service</li>
+            </ul>
+
+        </div>
+
+        <!-- VIDEO PLACEHOLDER SIDE -->
+        <div class="about-video fade-in delay-5">
+            <div class="video-placeholder">
+                <video class="about-video-player" src="Images/Outside Coverage.mp4" controls autoplay muted loop></video>
+            </div>
+        </div>
+
+    </div>
+</section>
+<!-- GUEST REVIEWS SECTION -->
+<section class="reviews-section">
+  <div class="reviews-container">
+    <h2>What Our Guests Are Saying</h2>
+
+    <!-- Review Form -->
+    <div class="review-form-container">
+      <h3>Share Your Experience</h3>
+      <form id="review-form" class="review-form">
+        <div class="form-group">
+          <label for="guest-name">Your Name</label>
+          <input type="text" id="guest-name" name="name" placeholder="Enter your name" required>
+        </div>
+
+        <div class="form-group">
+          <label>Rating</label>
+          <div class="rating-stars">
+            <input type="radio" id="star5" name="rating" value="5" required>
+            <label for="star5" title="5 stars">★</label>
+            <input type="radio" id="star4" name="rating" value="4">
+            <label for="star4" title="4 stars">★</label>
+            <input type="radio" id="star3" name="rating" value="3">
+            <label for="star3" title="3 stars">★</label>
+            <input type="radio" id="star2" name="rating" value="2">
+            <label for="star2" title="2 stars">★</label>
+            <input type="radio" id="star1" name="rating" value="1">
+            <label for="star1" title="1 star">★</label>
+          </div>
+        </div>
+
+        <button type="submit" class="submit-review-btn">Submit</button>
+      </form>
+    </div>
+
+    <!-- Reviews Display -->
+    <div class="reviews-display">
+      <h3>Recent Reviews</h3>
+      <div id="reviews-list" class="reviews-list">
+        <!-- Reviews will be dynamically added here -->
+        <div class="review-item">
+          <div class="review-header">
+            <div class="reviewer-name">John Doe</div>
+            <div class="review-rating">
+              ★★★★★
+            </div>
+          </div>
+          <div class="review-date">December 20, 2025</div>
+          <div class="review-text">
+            "Exceptional service and luxurious accommodations. The staff went above and beyond to make our stay memorable. Highly recommended!"
+          </div>
+        </div>
+
+        <div class="review-item">
+          <div class="review-header">
+            <div class="reviewer-name">Sarah Johnson</div>
+            <div class="review-rating">
+              ★★★★☆
+            </div>
+          </div>
+          <div class="review-date">December 15, 2025</div>
+          <div class="review-text">
+            "Beautiful hotel with great amenities. The rooms are clean and comfortable. Will definitely stay here again."
+          </div>
+        </div>
+
+        <div class="review-item">
+          <div class="review-header">
+            <div class="reviewer-name">Michael Brown</div>
+            <div class="review-rating">
+              ★★★★★
+            </div>
+          </div>
+          <div class="review-date">December 10, 2025</div>
+          <div class="review-text">
+            "Outstanding hospitality and attention to detail. The dining experience was exceptional. Perfect for both business and leisure travelers."
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+    
+
+    <div id="footer-container"></div>
+
+<!-- LIGHTBOX MODAL FOR IMAGE ZOOM -->
+<div id="lightbox-modal" class="lightbox-modal">
+    <div class="lightbox-overlay" onclick="closeLightbox()"></div>
+    <div class="lightbox-content">
+        <button class="lightbox-close" onclick="closeLightbox()">&times;</button>
+        <button class="lightbox-nav lightbox-prev" onclick="navigateImage(-1)">&#10094;</button>
+        <button class="lightbox-nav lightbox-next" onclick="navigateImage(1)">&#10095;</button>
+
+        <div class="lightbox-image-container">
+            <img id="lightbox-image" src="" alt="">
+        </div>
+
+        <div class="lightbox-controls">
+            <button class="zoom-btn" onclick="zoomIn()">+</button>
+            <button class="zoom-btn" onclick="zoomOut()">−</button>
+            <button class="zoom-btn" onclick="resetZoom()">Reset</button>
+            <span class="zoom-level" id="zoom-level">100%</span>
+            <div class="exit-hint">
+                <span>Exit: ESC • Double-click • Right-click</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="lightbox.js"></script>
+  <!-- Your page content ends here -->
+
+  <script>
+    fetch("header.html")
+      .then(res => res.text())
+      .then(html => {
+        document.getElementById("header-placeholder").innerHTML = html;
+      });
+  </script>
+
+ <script src="js/footer.js"></script>
+<script src="Julsona.js"></script>
+
+</body>
+</html>

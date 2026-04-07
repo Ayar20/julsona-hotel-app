@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="Julsona Logo.jpg" type="image/jpeg">
+    <link rel="stylesheet" href="Julsona.css">
+    <title>Rooms – Julsona Hotels & Suites</title>
+    <style>
+        .service-badge {
+            background-color: #b8860b;
+            color: white;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            display: inline-block;
+            margin-top: 10px;
+            margin-bottom: 5px;
+        }
+        .rooms-grid.filtered {
+            display: flex;
+            justify-content: center;
+        }
+        .rooms-grid.filtered .room-card {
+            max-width: 800px;
+            width: 100%;
+        }
+        .room-card {
+            transition: max-width 0.5s ease, width 0.5s ease, transform 0.3s ease;
+        }
+        .room-card img, .room-card video {
+            transition: height 0.5s ease;
+            object-fit: cover;
+            width: 100%;
+        }
+        .rooms-grid.filtered .room-card img,
+        .rooms-grid.filtered .room-card video {
+            height: 500px;
+        }
+    </style>
+</head>
+
+<body>
+ <div id="header-placeholder"></div>
+  
+  <!-- Your page content starts here -->
+    
+    <!-- ROOMS -->
+    <section id="rooms" class="rooms-section">
+        <h2>Our Rooms</h2>
+        
+        <div style="text-align: center; margin-bottom: 30px;">
+            <label style="display: inline-flex; align-items: center; gap: 10px; cursor: pointer; font-weight: bold; color: #0a2a43; background: #fff; padding: 10px 20px; border-radius: 30px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+                <input type="checkbox" id="service-filter" style="width: 18px; height: 18px;">
+                Show Service Apartments Only
+            </label>
+        </div>
+
+        <div class="rooms-grid">
+            <div class="room-card">
+                <img src="Room 202.jpg" alt="Deluxe Room">
+                <h3>Deluxe Room</h3>
+                <p>Comfortable and stylish room with modern amenities.</p>
+                <a href="rooms-deluxe.html" class="room-link">View Details</a>
+            </div>
+            <div class="room-card">
+                <img src="Room 202.jpeg" alt="Executive Deluxe Room">
+                <h3>Executive Deluxe Room</h3>
+                <p>Spacious room with premium features and executive amenities.</p>
+                <a href="rooms-executive.html" class="room-link">View Details</a>
+            </div>
+            <div class="room-card">
+                <img src="Room 208.jpg" alt="Royal Deluxe Room">
+                <span class="service-badge">Service Apartment Available</span>
+                <h3>Royal Deluxe Room</h3>
+                <p>Luxurious suite with royal treatment and exceptional comfort.</p>
+                <a href="rooms-royal.html" class="room-link">View Details</a>
+            </div>
+        </div>
+    </section>
+
+    <div id="footer-container"></div>
+
+<!-- Your page content ends here -->
+
+  <script>
+    fetch("header.html")
+      .then(res => res.text())
+      .then(html => {
+        const headerPlaceholder = document.getElementById("header-placeholder");
+        headerPlaceholder.innerHTML = html;
+      });
+  </script>
+  <script src="js/footer.js"></script>
+  <script src="Julsona.js"></script>
+
+  <script>
+    document.getElementById('service-filter').addEventListener('change', function() {
+        const showServiceOnly = this.checked;
+        const cards = document.querySelectorAll('.room-card');
+        const grid = document.querySelector('.rooms-grid');
+        
+        if (showServiceOnly) {
+            grid.classList.add('filtered');
+        } else {
+            grid.classList.remove('filtered');
+        }
+        
+        cards.forEach(card => {
+            const isService = card.querySelector('.service-badge') !== null;
+            
+            if (isService) {
+                const img = card.querySelector('img');
+                let video = card.querySelector('video');
+
+                if (showServiceOnly) {
+                    if (!video) {
+                        video = document.createElement('video');
+                        video.src = 'Images/Room 208 - Room Coverage.mp4';
+                        video.controls = true;
+                        video.autoplay = true;
+                        video.muted = true;
+                        video.loop = true;
+                        card.insertBefore(video, img);
+                    }
+                    video.style.display = 'block';
+                    if (img) img.style.display = 'none';
+                } else {
+                    if (video) video.style.display = 'none';
+                    if (img) img.style.display = 'block';
+                }
+                card.style.display = 'block';
+            } else {
+                if (showServiceOnly) {
+                    card.style.display = 'none';
+                } else {
+                    card.style.display = 'block';
+                }
+            }
+        });
+    });
+  </script>
+ 
+</body>
+</html>

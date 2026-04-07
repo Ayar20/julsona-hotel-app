@@ -1,0 +1,10 @@
+{
+  "name": "julsona-hotel-live",
+  "version": 2,
+  "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": "/api/index.js"
+    }
+  ]
+}

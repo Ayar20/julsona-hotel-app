@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="Julsona Logo.jpg" type="image/jpeg">
+    <link rel="stylesheet" href="Julsona.css">
+    <title>Julsona Hotels & Suites Ltd – Makurdi</title>
+    <style>
+        .intro-video {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+        .about-video-player {
+            flex-grow: 1;
+            object-fit: cover;
+        }
+    </style>
+</head>
+
+<body>
+ <div id="header-placeholder"></div>
+  
+  <!-- Your page content starts here -->
+        <!-- HERO SECTION -->
+<section class="hero">
+    <div class="hero-overlay"></div>
+
+    <div class="hero-content">
+        
+        <!-- BRAND TITLE -->
+        <h1 class="brand-title">Julsona Hotels & Suites Ltd</h1>
+
+        <!-- HERO TEXT -->
+        <div class="hero-text">
+            <div class="hero-badge">Welcome to Luxury</div>
+
+            <h1 class="hero-title">
+                <span class="hero-title-main">Experience Premium</span>
+                <span class="hero-title-accent">Comfort in Makurdi</span>
+            </h1>
+
+            <p class="hero-subtitle">
+                Relax in our serene rooms and suites designed for your perfect stay.
+                Discover unparalleled luxury and hospitality at Julsona Hotels & Suites.
+            </p>
+        </div>
+
+        <!-- HERO FEATURES -->
+        <div class="hero-features">
+            <div class="hero-feature">
+                <span class="feature-icon">✦</span>
+                <span>Luxurious Accommodation</span>
+            </div>
+            <div class="hero-feature">
+                <span class="feature-icon">✦</span>
+                <span>Best Kitchen Experience</span>
+            </div>
+            <div class="hero-feature">
+                <span class="feature-icon">✦</span>
+                <span>24/7 Power Supply</span>
+            </div>
+            <div class="hero-feature">
+                <span class="feature-icon">✦</span>
+                <span>Excellent Lounge & Bar</span>
+            </div>
+        </div>
+
+        <!-- HERO BUTTONS -->
+        <div class="hero-buttons">
+            <a href="booking.html" class="cta-btn primary">
+                <span>Book Your Stay</span>
+                <span class="btn-arrow">→</span>
+            </a>
+            <a href="rooms.html" class="cta-btn secondary">
+                <span>Explore Rooms</span>
+            </a>
+        </div>
+
+    </div>
+</section>
+
+<!-- LIGHTBOX MODAL FOR IMAGE ZOOM -->
+<div id="lightbox-modal" class="lightbox-modal">
+    <div class="lightbox-overlay" onclick="closeLightbox()"></div>
+    <div class="lightbox-content">
+        <button class="lightbox-close" onclick="closeLightbox()">&times;</button>
+        <button class="lightbox-close-float" onclick="closeLightbox()" title="Close (ESC)">
+            <span>&times;</span>
+        </button>
+        <button class="lightbox-nav lightbox-prev" onclick="navigateImage(-1)">&#10094;</button>
+        <button class="lightbox-nav lightbox-next" onclick="navigateImage(1)">&#10095;</button>
+
+        <div class="lightbox-image-container">
+            <img id="lightbox-image" src="" alt="">
+        </div>
+
+        <div class="lightbox-controls">
+            <button class="zoom-btn" onclick="zoomIn()">+</button>
+            <button class="zoom-btn" onclick="zoomOut()">−</button>
+            <button class="zoom-btn" onclick="resetZoom()">Reset</button>
+            <span class="zoom-level" id="zoom-level">100%</span>
+            <div class="exit-hint">
+                <span>Exit: ESC • Double-click • Right-click</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="lightbox.js"></script>
+
+<!-- INTRODUCTION VIDEO SECTION -->
+<section class="video-intro-section">
+  <div class="video-intro-container">
+    <div class="intro-image intro-image-left">
+      <img src="Outside the Hotel.jpeg" alt="Hotel Ambiance">
+    </div>
+    <div class="intro-video">
+       <video class="about-video-player" src="Videos/Julsona-tour.mp4" controls autoplay muted loop></video>
+      <h2>Welcome to Julsona Hotels & Suites</h2>
+      <p>Experience the perfect blend of luxury and comfort in the heart of Makurdi. Discover our world-class facilities and exceptional hospitality.</p>
+    </div>
+    <div class="intro-image intro-image-right">
+      <img src="Outside View.jpeg" alt="Hotel Luxury">
+    </div>
+  </div>
+</section>
+
+<!-- Q&A SECTION -->
+<section class="faq-section">
+    <div class="faq-container">
+        <h2>Frequently Asked Questions</h2>
+        <div class="faq-accordion">
+            <!-- FAQ Item 1 -->
+            <div class="faq-item">
+                <button class="faq-question">
+                    What are the check-in and check-out times?
+                    <span class="faq-icon">+</span>
+                </button>
+                <div class="faq-answer">
+                    <p>Check-in time is from 2:00 PM, and check-out is until 12:00 PM (noon). Early check-in or late check-out may be available upon request and subject to availability.</p>
+                </div>
+            </div>
+            
+            <!-- FAQ Item 2 -->
+            <div class="faq-item">
+                <button class="faq-question">
+                    Do you offer complimentary Wi-Fi?
+                    <span class="faq-icon">+</span>
+                </button>
+                <div class="faq-answer">
+                    <p>Yes, we provide high-speed, complimentary Wi-Fi access throughout the hotel, including in all guest rooms, the lobby, and the lounge.</p>
+                </div>
+            </div>
+
+            <!-- FAQ Item 3 -->
+            <div class="faq-item">
+                <button class="faq-question">
+                    Is parking available on-site?
+                    <span class="faq-icon">+</span>
+                </button>
+                <div class="faq-answer">
+                    <p>Yes, we have a secure, 24/7 guarded parking lot available free of charge for all our registered guests.</p>
+                </div>
+            </div>
+
+            <!-- FAQ Item 4 -->
+            <div class="faq-item">
+                <button class="faq-question">
+                    Does the hotel have a restaurant and bar?
+                    <span class="faq-icon">+</span>
+                </button>
+                <div class="faq-answer">
+                    <p>Absolutely. Our on-site kitchen serves delicious local and continental dishes, and our lounge & bar offers a premium selection of drinks in a relaxing atmosphere.</p>
+                </div>
+            </div>
+
+            <!-- FAQ Item 5 -->
+            <div class="faq-item">
+                <button class="faq-question">
+                    Do you have power supply 24/7?
+                    <span class="faq-icon">+</span>
+                </button>
+                <div class="faq-answer">
+                    <p>Yes, we guarantee uninterrupted power supply 24/7 to ensure your comfort and convenience during your stay with us.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div id="footer-container"></div>
+
+<script src="lightbox.js"></script>
+
+<!-- FAQ Accordion Script -->
+<script>
+    document.querySelectorAll('.faq-question').forEach(button => {
+        button.addEventListener('click', () => {
+            const answer = button.nextElementSibling;
+            
+            // Toggle active class
+            button.classList.toggle('active');
+            
+            // Toggle max-height for smooth animation
+            if (button.classList.contains('active')) {
+                answer.style.maxHeight = answer.scrollHeight + 'px';
+            } else {
+                answer.style.maxHeight = 0;
+            }
+            
+            // Close other open items
+            document.querySelectorAll('.faq-question').forEach(otherButton => {
+                if (otherButton !== button && otherButton.classList.contains('active')) {
+                    otherButton.classList.remove('active');
+                    otherButton.nextElementSibling.style.maxHeight = 0;
+                }
+            });
+        });
+    });
+</script>
+
+<!-- Your page content ends here -->
+
+  <script>
+    fetch("header.html")
+      .then(res => res.text())
+      .then(html => {
+        const headerPlaceholder = document.getElementById("header-placeholder");
+        headerPlaceholder.innerHTML = html;
+      });
+ 
+ </script>
+ 
+ <script src="js/footer.js"></script>
+ <script src="Julsona.js"></script>
+
+</body>
+</html>

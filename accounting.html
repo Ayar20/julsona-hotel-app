@@ -1,0 +1,825 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="Julsona Logo.jpg" type="image/jpeg">
+    <title>Julsona Hotel - Accounting Portal</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="accounting.css">
+</head>
+<body>
+    <!-- Login Overlay -->
+    <div id="login-overlay">
+        <div class="login-card">
+            <h2 style="margin-bottom: 20px; color: #2c3e50;">Admin Login</h2>
+            <form id="login-form">
+                <div class="form-group" style="text-align: left;">
+                    <label class="form-label">Username</label>
+                    <input type="text" id="login-user" class="form-control" required>
+                </div>
+                <div class="form-group" style="text-align: left;">
+                    <label class="form-label">Password</label>
+                    <input type="password" id="login-pass" class="form-control" required>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%;">Login</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Sidebar Overlay for Mobile -->
+    <div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <div class="brand">Julsona Accounts</div>
+        <div class="nav-links">
+            <a href="#" class="nav-item active" onclick="showSection('dashboard'); toggleSidebar()">Dashboard</a>
+            <a href="#" class="nav-item" onclick="showSection('income'); toggleSidebar()">Record Income</a>
+            <a href="#" class="nav-item" onclick="showSection('expenses'); toggleSidebar()">Record Expenses</a>
+            <a href="#" class="nav-item" onclick="showSection('all-transactions'); toggleSidebar()">View Transactions</a>
+            <a href="#" class="nav-item" onclick="showSection('reports'); toggleSidebar()">Reports</a>
+            <a href="#" class="nav-item" onclick="logout()" style="margin-top: auto; border-top: 1px solid #34495e;">Logout</a>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="header">
+            <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
+            <div class="page-title" id="page-title">Dashboard</div>
+            <div class="user-info">Admin User</div>
+        </div>
+
+        <div class="content-wrapper">
+            
+            <!-- Dashboard Section -->
+            <div id="dashboard" class="section active">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-title">Today's Income</div>
+                        <div class="stat-value income" id="dash-today-income">₦0.00</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-title">Today's Expenses</div>
+                        <div class="stat-value expense" id="dash-today-expense">₦0.00</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-title">Monthly Net</div>
+                        <div class="stat-value" id="dash-month-net">₦0.00</div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <h3>Financial Overview</h3>
+                    <canvas id="financeChart" style="max-height: 300px;"></canvas>
+                </div>
+
+                <div class="card">
+                    <h3>Recent Transactions</h3>
+                    <table id="recent-transactions-table">
+                        <thead>
+                            <tr>
+                                <th onclick="sortTransactions('date')">Date ⇅</th>
+                                <th onclick="sortTransactions('type')">Type ⇅</th>
+                                <th onclick="sortTransactions('category')">Income Head ⇅</th>
+                                <th onclick="sortTransactions('description')">Description ⇅</th>
+                                <th onclick="sortTransactions('amount')">Amount ⇅</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Populated by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Income Section -->
+            <div id="income" class="section">
+                <div class="card">
+                    <h3>Record New Income</h3>
+                    <form id="income-form">
+                        <div class="form-group">
+                            <label class="form-label">Date</label>
+                            <input type="date" class="form-control" name="date" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Description</label>
+                            <input type="text" class="form-control" name="description" placeholder="e.g. Room 101 Booking" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Category</label>
+                            <select class="form-control" name="category">
+                                <option value="Accommodation">Accommodation</option>
+                                <option value="Bar">Bar & Lounge</option>
+                                <option value="Restaurant">Restaurant</option>
+                                <option value="Laundry">Laundry</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Amount (₦)</label>
+                            <input type="number" class="form-control" name="amount" min="0" step="0.01" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Save Income</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Expenses Section -->
+            <div id="expenses" class="section">
+                <div class="card">
+                    <h3>Record New Expense</h3>
+                    <form id="expense-form">
+                        <div class="form-group">
+                            <label class="form-label">Date</label>
+                            <input type="date" class="form-control" name="date" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Description</label>
+                            <input type="text" class="form-control" name="description" placeholder="e.g. Diesel Purchase" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Category</label>
+                            <select class="form-control" name="category">
+                                <option value="Utilities">Utilities (Power/Water)</option>
+                                <option value="Maintenance">Maintenance</option>
+                                <option value="Supplies">Kitchen/Bar Supplies</option>
+                                <option value="Salaries">Salaries</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Amount (₦)</label>
+                            <input type="number" class="form-control" name="amount" min="0" step="0.01" required>
+                        </div>
+                        <button type="submit" class="btn btn-danger">Save Expense</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- All Transactions Section -->
+            <div id="all-transactions" class="section">
+                <div class="card">
+                    <h3>All Transactions</h3>
+                    <div style="margin-bottom: 15px;">
+                        <input type="text" id="transaction-search" class="form-control" placeholder="Search by description, category, or amount..." onkeyup="renderAllTransactions()" style="max-width: 300px;">
+                    </div>
+                    <table id="all-transactions-table">
+                        <thead>
+                            <tr>
+                                <th onclick="sortAllTransactions('date')">Date ⇅</th>
+                                <th onclick="sortAllTransactions('type')">Type ⇅</th>
+                                <th onclick="sortAllTransactions('category')">Category ⇅</th>
+                                <th onclick="sortAllTransactions('description')">Description ⇅</th>
+                                <th onclick="sortAllTransactions('amount')">Amount ⇅</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Populated by JS -->
+                        </tbody>
+                    </table>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 20px;">
+                        <button class="btn" id="btn-prev" onclick="changePage(-1)">Previous</button>
+                        <span id="page-info">Page 1 of 1</span>
+                        <button class="btn" id="btn-next" onclick="changePage(1)">Next</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Reports Section -->
+            <div id="reports" class="section">
+                <div class="card">
+                    <div class="tabs">
+                        <div class="tab active" onclick="switchReportTab('daily')">Daily</div>
+                        <div class="tab" onclick="switchReportTab('weekly')">Weekly</div>
+                        <div class="tab" onclick="switchReportTab('monthly')">Monthly</div>
+                        <div class="tab" onclick="switchReportTab('yearly')">Yearly</div>
+                        <div class="tab" onclick="switchReportTab('custom')">Custom Range</div>
+                    </div>
+                    
+                    <div id="report-filters" style="display:none; margin-bottom: 20px; gap: 10px; align-items: end; flex-wrap: wrap;">
+                        <div class="form-group" style="margin-bottom: 0; flex: 1; min-width: 150px;">
+                            <label class="form-label">Start Date</label>
+                            <input type="date" id="report-start" class="form-control">
+                        </div>
+                        <div class="form-group" style="margin-bottom: 0; flex: 1; min-width: 150px;">
+                            <label class="form-label">End Date</label>
+                            <input type="date" id="report-end" class="form-control">
+                        </div>
+                        <div class="form-group" style="margin-bottom: 0; flex: 1; min-width: 150px;">
+                            <label class="form-label">Type</label>
+                            <select id="report-type" class="form-control">
+                                <option value="All">All Transactions</option>
+                                <option value="Income">Income Only</option>
+                                <option value="Expense">Expense Only</option>
+                            </select>
+                        </div>
+                        <button class="btn btn-primary" onclick="generateReport('custom')">Apply Filter</button>
+                    </div>
+
+                    <div id="report-content">
+                        <!-- Dynamic Report Table -->
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                            <h3 id="report-title" style="margin-bottom: 0;">Daily Report</h3>
+                            <div>
+                                <button class="btn btn-primary" onclick="emailReport()" style="margin-right: 10px; background-color: #2c3e50;">Email Report</button>
+                                <button class="btn btn-primary" onclick="exportReportToCSV()">Export CSV</button>
+                            </div>
+                        </div>
+                        <table id="report-table">
+                            <thead>
+                                <tr>
+                                    <th onclick="sortReport('period')">Period ⇅</th>
+                                    <th onclick="sortReport('income')">Total Income ⇅</th>
+                                    <th onclick="sortReport('expense')">Total Expenses ⇅</th>
+                                    <th onclick="sortReport('net')">Net Profit ⇅</th>
+                                </tr>
+                            </thead>
+                            <tbody id="report-body">
+                                <!-- JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Edit Transaction Modal -->
+    <div id="edit-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:1000; justify-content:center; align-items:center;">
+        <div class="card" style="width: 400px; max-width: 90%;">
+            <h3>Edit Transaction</h3>
+            <form id="edit-form">
+                <input type="hidden" id="edit-id">
+                <div class="form-group">
+                    <label class="form-label">Date</label>
+                    <input type="date" class="form-control" id="edit-date" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Description</label>
+                    <input type="text" class="form-control" id="edit-description" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Type</label>
+                    <select class="form-control" id="edit-type" disabled>
+                        <option value="Income">Income</option>
+                        <option value="Expense">Expense</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Category</label>
+                    <select class="form-control" id="edit-category"></select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Amount (₦)</label>
+                    <input type="number" class="form-control" id="edit-amount" min="0" step="0.01" required>
+                </div>
+                <div style="display:flex; gap:10px; justify-content:flex-end;">
+                    <button type="button" class="btn" onclick="closeEditModal()" style="background:#95a5a6; color:white;">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Update</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Simple State Management using LocalStorage
+        const STORAGE_KEY = 'julsona_accounting_data';
+        let transactions = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+        let currentSort = { column: null, direction: 'asc' };
+        let allTransSort = { column: 'date', direction: 'desc' };
+        let reportSort = { column: 'period', direction: 'desc' };
+        let currentPage = 1;
+        const ITEMS_PER_PAGE = 10;
+        let financeChart = null;
+
+        // Responsive Sidebar Logic
+        function toggleSidebar() {
+            // Only toggle if window width is small (mobile)
+            if (window.innerWidth <= 768) {
+                document.getElementById('sidebar').classList.toggle('active');
+                document.querySelector('.sidebar-overlay').classList.toggle('active');
+            }
+        }
+
+        // Auth Logic
+        function checkAuth() {
+            if(!sessionStorage.getItem('julsona_auth')) {
+                document.getElementById('login-overlay').style.display = 'flex';
+            } else {
+                document.getElementById('login-overlay').style.display = 'none';
+                initChart(); // Initialize chart only after login
+                updateDashboard();
+            }
+        }
+
+        document.getElementById('login-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const u = document.getElementById('login-user').value;
+            const p = document.getElementById('login-pass').value;
+            
+            // Simple hardcoded credentials
+            if(u === 'admin' && p === 'admin123') {
+                sessionStorage.setItem('julsona_auth', 'true');
+                checkAuth();
+            } else {
+                alert('Invalid credentials. Try admin / admin123');
+            }
+        });
+
+        function logout() {
+            sessionStorage.removeItem('julsona_auth');
+            location.reload();
+        }
+
+        function sortReport(column) {
+            if (reportSort.column === column) {
+                reportSort.direction = reportSort.direction === 'asc' ? 'desc' : 'asc';
+            } else {
+                reportSort.column = column;
+                reportSort.direction = column === 'period' ? 'asc' : 'desc';
+            }
+            const activeTab = document.querySelector('#reports .tab.active');
+            if (activeTab) {
+                const period = activeTab.innerText.toLowerCase();
+                generateReport(period);
+            }
+        }
+
+        function sortTransactions(column) {
+            if (currentSort.column === column) {
+                currentSort.direction = currentSort.direction === 'asc' ? 'desc' : 'asc';
+            } else {
+                currentSort.column = column;
+                currentSort.direction = 'asc';
+            }
+            updateDashboard();
+        }
+
+        // Navigation
+        function showSection(sectionId) {
+            document.querySelectorAll('.section').forEach(el => el.classList.remove('active'));
+            document.getElementById(sectionId).classList.add('active');
+            
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            document.getElementById('page-title').textContent = sectionId.charAt(0).toUpperCase() + sectionId.slice(1);
+            
+            if(sectionId === 'dashboard') updateDashboard();
+            if(sectionId === 'reports') switchReportTab('daily');
+            if(sectionId === 'all-transactions') renderAllTransactions();
+        }
+
+        // Data Handling
+        function addTransaction(type, formData) {
+            const transaction = {
+                id: Date.now(),
+                type: type,
+                date: formData.get('date'),
+                description: formData.get('description'),
+                category: formData.get('category'),
+                amount: parseFloat(formData.get('amount')),
+                timestamp: new Date().toISOString()
+            };
+            
+            transactions.push(transaction);
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(transactions));
+            alert(`${type} recorded successfully!`);
+            updateDashboard();
+        }
+
+        // Forms
+        document.getElementById('income-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            addTransaction('Income', new FormData(this));
+            this.reset();
+            // Set default date to today
+            this.querySelector('[name="date"]').valueAsDate = new Date();
+        });
+
+        document.getElementById('expense-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            addTransaction('Expense', new FormData(this));
+            this.reset();
+            this.querySelector('[name="date"]').valueAsDate = new Date();
+        });
+
+        // Dashboard Logic
+        function updateDashboard() {
+            const today = new Date().toISOString().split('T')[0];
+            const currentMonth = today.substring(0, 7); // YYYY-MM
+
+            let todayIncome = 0;
+            let todayExpense = 0;
+            let monthIncome = 0;
+            let monthExpense = 0;
+
+            transactions.forEach(t => {
+                if (t.date === today) {
+                    if (t.type === 'Income') todayIncome += t.amount;
+                    else todayExpense += t.amount;
+                }
+                if (t.date.startsWith(currentMonth)) {
+                    if (t.type === 'Income') monthIncome += t.amount;
+                    else monthExpense += t.amount;
+                }
+            });
+
+            document.getElementById('dash-today-income').textContent = formatCurrency(todayIncome);
+            document.getElementById('dash-today-expense').textContent = formatCurrency(todayExpense);
+            
+            const net = monthIncome - monthExpense;
+            const netEl = document.getElementById('dash-month-net');
+            netEl.textContent = formatCurrency(net);
+            netEl.style.color = net >= 0 ? '#27ae60' : '#c0392b';
+
+            updateChart();
+
+            // Recent Transactions
+            const tbody = document.querySelector('#recent-transactions-table tbody');
+            tbody.innerHTML = '';
+            
+            let displayData = [...transactions];
+            
+            if (currentSort.column) {
+                displayData.sort((a, b) => {
+                    let valA = a[currentSort.column] || '';
+                    let valB = b[currentSort.column] || '';
+                    
+                    if (typeof valA === 'string') valA = valA.toLowerCase();
+                    if (typeof valB === 'string') valB = valB.toLowerCase();
+                    
+                    if (valA < valB) return currentSort.direction === 'asc' ? -1 : 1;
+                    if (valA > valB) return currentSort.direction === 'asc' ? 1 : -1;
+                    return 0;
+                });
+            } else {
+                displayData.sort((a,b) => b.id - a.id);
+            }
+            
+            const recent = displayData.slice(0, 15);
+            
+            recent.forEach(t => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${t.date}</td>
+                    <td><span style="color: ${t.type === 'Income' ? '#27ae60' : '#c0392b'}">${t.type}</span></td>
+                    <td>${t.category || '-'}</td>
+                    <td>${t.description}</td>
+                    <td>${formatCurrency(t.amount)}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // Chart Logic
+        function initChart() {
+            const ctx = document.getElementById('financeChart').getContext('2d');
+            if (financeChart) financeChart.destroy();
+            
+            financeChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: [],
+                    datasets: [
+                        { label: 'Income', data: [], backgroundColor: '#27ae60' },
+                        { label: 'Expenses', data: [], backgroundColor: '#c0392b' }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: { y: { beginAtZero: true } }
+                }
+            });
+        }
+
+        function updateChart() {
+            if (!financeChart) return;
+
+            const data = {};
+            // Sort by date ascending for chart
+            const sorted = [...transactions].sort((a,b) => new Date(a.date) - new Date(b.date));
+
+            sorted.forEach(t => {
+                const key = t.date.substring(0, 7); // Group by YYYY-MM
+                if(!data[key]) data[key] = { income: 0, expense: 0 };
+                if(t.type === 'Income') data[key].income += t.amount;
+                else data[key].expense += t.amount;
+            });
+
+            financeChart.data.labels = Object.keys(data);
+            financeChart.data.datasets[0].data = Object.values(data).map(d => d.income);
+            financeChart.data.datasets[1].data = Object.values(data).map(d => d.expense);
+            financeChart.update();
+        }
+
+        // Reporting Logic
+        function switchReportTab(period) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            const titles = {
+                'daily': 'Daily Report',
+                'weekly': 'Weekly Report',
+                'monthly': 'Monthly Report',
+                'yearly': 'Yearly Report',
+                'custom': 'Custom Range Report'
+            };
+            document.getElementById('report-title').textContent = titles[period] || 'Report';
+            
+            const filterDiv = document.getElementById('report-filters');
+            filterDiv.style.display = period === 'custom' ? 'flex' : 'none';
+            
+            generateReport(period);
+        }
+
+        function generateReport(period) {
+            const tbody = document.getElementById('report-body');
+            tbody.innerHTML = '';
+            
+            const groups = {};
+            let data = transactions;
+            let groupMode = period;
+
+            if (period === 'custom') {
+                groupMode = 'daily';
+                const type = document.getElementById('report-type').value;
+                const start = document.getElementById('report-start').value;
+                const end = document.getElementById('report-end').value;
+
+                if (type !== 'All') data = data.filter(t => t.type === type);
+                if (start) data = data.filter(t => t.date >= start);
+                if (end) data = data.filter(t => t.date <= end);
+            }
+            
+            data.forEach(t => {
+                let key;
+                const d = new Date(t.date);
+                
+                if (groupMode === 'daily') key = t.date;
+                else if (groupMode === 'weekly') {
+                    // Simple week number calculation
+                    const onejan = new Date(d.getFullYear(), 0, 1);
+                    const week = Math.ceil((((d - onejan) / 86400000) + onejan.getDay() + 1) / 7);
+                    key = `${d.getFullYear()}-W${week.toString().padStart(2, '0')}`;
+                }
+                else if (groupMode === 'monthly') key = t.date.substring(0, 7); // YYYY-MM
+                else if (groupMode === 'yearly') key = d.getFullYear().toString();
+                
+                if (!groups[key]) groups[key] = { income: 0, expense: 0 };
+                
+                if (t.type === 'Income') groups[key].income += t.amount;
+                else groups[key].expense += t.amount;
+            });
+
+            // Convert to array for sorting
+            let reportData = Object.keys(groups).map(key => {
+                const data = groups[key];
+                return {
+                    period: key,
+                    income: data.income,
+                    expense: data.expense,
+                    net: data.income - data.expense
+                };
+            });
+
+            // Sort the data
+            reportData.sort((a, b) => {
+                let valA, valB;
+                const col = reportSort.column;
+
+                if (col === 'period') {
+                    valA = a.period;
+                    valB = b.period;
+                } else { // income, expense, net
+                    valA = a[col];
+                    valB = b[col];
+                }
+
+                if (valA < valB) return reportSort.direction === 'asc' ? -1 : 1;
+                if (valA > valB) return reportSort.direction === 'asc' ? 1 : -1;
+                return 0;
+            });
+
+            reportData.forEach(item => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${item.period}</td>
+                    <td style="color: #27ae60">${formatCurrency(item.income)}</td>
+                    <td style="color: #c0392b">${formatCurrency(item.expense)}</td>
+                    <td style="font-weight: bold; color: ${item.net >= 0 ? '#2c3e50' : '#c0392b'}">${formatCurrency(item.net)}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+            
+            if (reportData.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" style="text-align:center">No records found</td></tr>';
+            }
+        }
+
+        // All Transactions & Pagination
+        function sortAllTransactions(column) {
+            if (allTransSort.column === column) {
+                allTransSort.direction = allTransSort.direction === 'asc' ? 'desc' : 'asc';
+            } else {
+                allTransSort.column = column;
+                allTransSort.direction = 'asc';
+            }
+            renderAllTransactions();
+        }
+
+        function renderAllTransactions() {
+            const tbody = document.querySelector('#all-transactions-table tbody');
+            tbody.innerHTML = '';
+            
+            const searchInput = document.getElementById('transaction-search');
+            const term = searchInput ? searchInput.value.toLowerCase() : '';
+
+            // Filter
+            let data = transactions.filter(t => 
+                t.description.toLowerCase().includes(term) || 
+                (t.category && t.category.toLowerCase().includes(term)) ||
+                t.amount.toString().includes(term) ||
+                t.date.includes(term) ||
+                t.type.toLowerCase().includes(term)
+            );
+            
+            // Sort
+            data.sort((a, b) => {
+                let valA = a[allTransSort.column] || '';
+                let valB = b[allTransSort.column] || '';
+                
+                if (allTransSort.column === 'amount') {
+                    valA = parseFloat(valA);
+                    valB = parseFloat(valB);
+                } else {
+                    valA = valA.toString().toLowerCase();
+                    valB = valB.toString().toLowerCase();
+                }
+                
+                if (valA < valB) return allTransSort.direction === 'asc' ? -1 : 1;
+                if (valA > valB) return allTransSort.direction === 'asc' ? 1 : -1;
+                return 0;
+            });
+
+            const totalPages = Math.ceil(data.length / ITEMS_PER_PAGE) || 1;
+            
+            if (currentPage < 1) currentPage = 1;
+            if (currentPage > totalPages) currentPage = totalPages;
+            
+            const start = (currentPage - 1) * ITEMS_PER_PAGE;
+            const end = start + ITEMS_PER_PAGE;
+            const paginatedItems = data.slice(start, end);
+            
+            paginatedItems.forEach(t => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${t.date}</td>
+                    <td><span style="color: ${t.type === 'Income' ? '#27ae60' : '#c0392b'}">${t.type}</span></td>
+                    <td>${t.category || '-'}</td>
+                    <td>${t.description}</td>
+                    <td>${formatCurrency(t.amount)}</td>
+                    <td>
+                        <button class="btn" style="padding:5px 10px; font-size:12px; background:#f39c12; color:white; margin-right:5px;" onclick="editTransaction(${t.id})">Edit</button>
+                        <button class="btn" style="padding:5px 10px; font-size:12px; background:#e74c3c; color:white;" onclick="deleteTransaction(${t.id})">Delete</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+            
+            document.getElementById('page-info').textContent = `Page ${currentPage} of ${totalPages}`;
+            document.getElementById('btn-prev').disabled = currentPage === 1;
+            document.getElementById('btn-next').disabled = currentPage === totalPages;
+        }
+
+        function changePage(delta) {
+            currentPage += delta;
+            renderAllTransactions();
+        }
+
+        // Edit & Delete Logic
+        function deleteTransaction(id) {
+            if(confirm('Are you sure you want to delete this transaction?')) {
+                transactions = transactions.filter(t => t.id !== id);
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(transactions));
+                updateDashboard();
+                renderAllTransactions();
+            }
+        }
+
+        function editTransaction(id) {
+            const t = transactions.find(x => x.id === id);
+            if(!t) return;
+
+            document.getElementById('edit-id').value = t.id;
+            document.getElementById('edit-date').value = t.date;
+            document.getElementById('edit-description').value = t.description;
+            document.getElementById('edit-type').value = t.type;
+            document.getElementById('edit-amount').value = t.amount;
+
+            // Populate categories based on type
+            const catSelect = document.getElementById('edit-category');
+            catSelect.innerHTML = '';
+            const incomeCats = ["Accommodation", "Bar", "Restaurant", "Laundry", "Other"];
+            const expenseCats = ["Utilities", "Maintenance", "Supplies", "Salaries", "Other"];
+            const cats = t.type === 'Income' ? incomeCats : expenseCats;
+
+            cats.forEach(c => {
+                const opt = document.createElement('option');
+                opt.value = c;
+                opt.textContent = c;
+                if(c === t.category) opt.selected = true;
+                catSelect.appendChild(opt);
+            });
+
+            document.getElementById('edit-modal').style.display = 'flex';
+        }
+
+        function closeEditModal() {
+            document.getElementById('edit-modal').style.display = 'none';
+        }
+
+        document.getElementById('edit-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const id = parseInt(document.getElementById('edit-id').value);
+            const tIndex = transactions.findIndex(x => x.id === id);
+            
+            if(tIndex > -1) {
+                transactions[tIndex].date = document.getElementById('edit-date').value;
+                transactions[tIndex].description = document.getElementById('edit-description').value;
+                transactions[tIndex].category = document.getElementById('edit-category').value;
+                transactions[tIndex].amount = parseFloat(document.getElementById('edit-amount').value);
+                
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(transactions));
+                updateDashboard();
+                renderAllTransactions();
+                closeEditModal();
+                alert('Transaction updated successfully');
+            }
+        });
+
+        // Export to CSV
+        function exportReportToCSV() {
+            const table = document.getElementById('report-table');
+            let csv = [];
+            
+            // Get headers
+            const headers = Array.from(table.querySelectorAll('th')).map(th => th.innerText);
+            csv.push(headers.join(','));
+            
+            // Get rows
+            const rows = table.querySelectorAll('tbody tr');
+            rows.forEach(row => {
+                const cols = Array.from(row.querySelectorAll('td')).map(td => `"${td.innerText}"`);
+                csv.push(cols.join(','));
+            });
+            
+            const csvContent = "data:text/csv;charset=utf-8," + csv.join("\n");
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", "julsona_report.csv");
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        // Email Report
+        function emailReport() {
+            const table = document.getElementById('report-table');
+            const title = document.getElementById('report-title').innerText;
+            let body = `${title}\n\n`;
+            
+            // Get headers
+            const headers = Array.from(table.querySelectorAll('th')).map(th => th.innerText.replace(' ⇅', ''));
+            body += headers.join(' | ') + '\n';
+            body += '-'.repeat(30) + '\n';
+            
+            // Get rows
+            const rows = table.querySelectorAll('tbody tr');
+            rows.forEach(row => {
+                const cols = Array.from(row.querySelectorAll('td')).map(td => td.innerText);
+                body += cols.join(' | ') + '\n';
+            });
+            
+            const subject = encodeURIComponent(`Julsona Hotel - ${title}`);
+            const mailBody = encodeURIComponent(body);
+            
+            window.location.href = `mailto:?subject=${subject}&body=${mailBody}`;
+        }
+
+        function formatCurrency(amount) {
+            return '₦' + amount.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
+        }
+
+        // Initialize
+        document.querySelectorAll('input[type="date"]').forEach(i => i.valueAsDate = new Date());
+        checkAuth();
+    </script>
+</body>
+</html>

@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="Julsona Logo.jpg" type="image/jpeg">
+    <link rel="stylesheet" href="Julsona.css">
+    <title>Lounge & Bar – Julsona Hotels & Suites</title>
+</head>
+
+<body>
+  <div id="header-placeholder"></div>
+  
+  <!-- Your page content starts here -->
+
+    <!-- LOUNGE & BAR SELECTION -->
+    <section class="rooms-section">
+        <h2>Our Lounge & Bar Experience</h2>
+        <div class="rooms-grid">
+            <div class="room-card">
+                <img src="Julsona VIP Bar.jpeg" alt="VIP Lounge">
+                <h3>VIP Lounge</h3>
+                <p>Experience luxury, privacy, and premium service in our exclusive indoor lounge.</p>
+                <a href="vip-lounge.html" class="room-link">Enter VIP Lounge</a>
+            </div>
+            <div class="room-card">
+                <img src="Bush Bar.jpeg" alt="Bush Bar">
+                <h3>Bush Bar</h3>
+                <p>Relax in our open-air bar surrounded by nature and fresh breeze.</p>
+                <a href="bush-bar.html" class="room-link">Enter Bush Bar</a>
+            </div>
+        </div>
+    </section>
+
+    <div id="footer-container"></div>
+
+  <!-- Your page content ends here -->
+
+  <script>
+    fetch("header.html")
+      .then(res => res.text())
+      .then(html => {
+        const headerPlaceholder = document.getElementById("header-placeholder");
+        headerPlaceholder.innerHTML = html;
+      });
+  </script>
+
+ <script src="js/footer.js"></script>
+<script src="Julsona.js"></script>
+
+</body>
+</html>
