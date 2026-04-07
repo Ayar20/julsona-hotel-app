@@ -119,3 +119,69 @@ async function loadAdminData() {
 function viewBooking(id) {
     alert('Details view coming soon! ID: ' + id);
 }
+
+// --- Media Upload Logic ---
+const uploadForm = document.getElementById('media-upload-form');
+if (uploadForm) {
+    uploadForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const fileInput = document.getElementById('media-file');
+        const uploadBtn = document.getElementById('upload-btn');
+        const statusDiv = document.getElementById('upload-status');
+        const resultDiv = document.getElementById('upload-result');
+        
+        if (!fileInput.files[0]) return;
+
+        const fileInfo = fileInput.files[0];
+        const formData = new FormData();
+        formData.append('file', fileInfo);
+
+        // UI Reset
+        uploadBtn.textContent = 'Uploading...';
+        uploadBtn.disabled = true;
+        statusDiv.style.display = 'block';
+        statusDiv.style.color = '#ff9800';
+        statusDiv.textContent = `Uploading ${fileInfo.name} (${(fileInfo.size / (1024 * 1024)).toFixed(2)} MB)... This might take a minute for large videos!`;
+        resultDiv.innerHTML = '';
+
+        try {
+            // Because the frontend is static but we are hosted on Vercel, the API lives correctly at /api/...
+            const res = await fetch(`${API_URL}/upload`, {
+                method: 'POST',
+                body: formData // Note: Do NOT set Content-Type header when using FormData
+            });
+
+            const data = await res.json();
+
+            if (res.ok && data.success) {
+                statusDiv.style.color = '#4caf50';
+                statusDiv.textContent = 'Upload Successful!';
+                
+                const isVideo = fileInfo.type.startsWith('video');
+                const previewHtml = isVideo 
+                    ? `<video controls style="max-width: 300px; border-radius: 8px; margin-top: 10px;"><source src="${data.url}" type="${fileInfo.type}"></video>`
+                    : `<img src="${data.url}" alt="Uploaded Media" style="max-width: 300px; border-radius: 8px; margin-top: 10px;">`;
+
+                resultDiv.innerHTML = `
+                    <div style="background: #e8f5e9; padding: 15px; border-radius: 8px; border: 1px solid #c8e6c9;">
+                        <strong>Secure Cloudinary URL saved:</strong> <br>
+                        <a href="${data.url}" target="_blank" style="color: #2e7d32; word-break: break-all;">${data.url}</a>
+                        <br>
+                        ${previewHtml}
+                    </div>
+                `;
+                uploadForm.reset();
+            } else {
+                throw new Error(data.message || 'Upload failed');
+            }
+        } catch (err) {
+            console.error(err);
+            statusDiv.style.color = '#f44336';
+            statusDiv.textContent = `Error: ${err.message}`;
+        } finally {
+            uploadBtn.textContent = 'Upload File';
+            uploadBtn.disabled = false;
+        }
+    });
+}

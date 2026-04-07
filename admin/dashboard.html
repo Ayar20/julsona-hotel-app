@@ -59,6 +59,22 @@
                 </table>
             </div>
         </div>
+
+        <!-- Media Upload Section -->
+        <div class="table-container" style="margin-top: 30px;">
+            <div class="table-header">
+                <h2>Media Manager (Cloudinary)</h2>
+            </div>
+            <div style="padding: 20px;">
+                <p style="margin-bottom: 15px; color: #555;">Upload high-quality images or videos. They will be securely hosted on your Cloudinary server to keep the website lightning fast.</p>
+                <form id="media-upload-form" style="display: flex; gap: 15px; align-items: center; max-width: 600px; padding: 15px; background: #f9f9f9; border-radius: 8px; border: 1px solid #ddd;">
+                    <input type="file" id="media-file" name="file" accept="image/*,video/*" required style="flex: 1;">
+                    <button type="submit" class="btn-admin" id="upload-btn" style="width: auto; padding: 10px 20px;">Upload File</button>
+                </form>
+                <div id="upload-status" style="margin-top: 15px; font-weight: bold; display: none;"></div>
+                <div id="upload-result" style="margin-top: 15px;"></div>
+            </div>
+        </div>
     </div>
 
     <script src="../js/admin.js"></script>
