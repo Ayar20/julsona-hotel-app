@@ -316,16 +316,18 @@
           amount: amountNaira * 100,
           currency: 'NGN',
           metadata: { custom_fields: [{ display_name: 'Customer', variable_name: 'customer_name', value: customer.name }] },
-          callback: async function (response) {
+          callback: function (response) {
             alert("Paystack Successful! Saving to Database...");
-            try {
-              for (const en of entries) {
-                await saveBooking({ ...en, customer, paid: true, provider: 'paystack', txref: response.reference, status: 'confirmed' });
-              }
-              result.innerHTML = '<h3>Payment successful</h3><p>Reference: ' + response.reference + '</p><p>Booking Confirmed! We have received your payment.</p>';
-            } catch (err) {
-              alert("Error saving your payment: " + err.message);
-            }
+            (async function() {
+                try {
+                  for (const en of entries) {
+                    await saveBooking({ ...en, customer, paid: true, provider: 'paystack', txref: response.reference, status: 'confirmed' });
+                  }
+                  result.innerHTML = '<h3>Payment successful</h3><p>Reference: ' + response.reference + '</p><p>Booking Confirmed! We have received your payment.</p>';
+                } catch (err) {
+                  alert("Error saving your payment: " + err.message);
+                }
+            })();
           },
           onClose: function () { alert('Payment window closed securely.'); }
         });
