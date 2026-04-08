@@ -31,10 +31,28 @@
     @media (max-width: 768px) {
         .menu-toggle {
             display: block;
+            color: white;
+            font-size: 28px;
+            margin-left: 10px;
         }
 
         .header {
-            position: relative;
+            padding: 10px 20px !important;
+            justify-content: space-between !important;
+        }
+
+        .header .logo span {
+            display: none; /* Hide heavy text on mobile to save space */
+        }
+
+        .auth-buttons {
+            display: flex;
+            margin-left: auto;
+        }
+
+        .auth-buttons .login-btn {
+            padding: 8px 12px;
+            font-size: 13px;
         }
 
         .header ul {
@@ -44,12 +62,12 @@
             left: 0;
             width: 100%;
             background-color: #0a2a43;
-            flex-direction: row;
-            flex-wrap: wrap;
-            justify-content: center;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            flex-direction: column;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.5);
             z-index: 1000;
-            padding: 10px 0;
+            padding: 0;
+            margin: 0;
+            border-top: 1px solid rgba(255,255,255,0.1);
         }
 
         .header ul.active {
@@ -57,13 +75,20 @@
         }
 
         .header ul li {
-            text-align: center;
-            padding: 10px;
+            width: 100%;
         }
 
         .header ul li a {
             display: block;
-            text-decoration: none;
+            padding: 15px;
+            text-align: center;
+            font-size: 18px;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        
+        .header ul li a.book-btn {
+            border-radius: 0;
+            margin: 0;
         }
     }
 </style>
