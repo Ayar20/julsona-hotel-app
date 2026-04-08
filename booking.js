@@ -300,21 +300,40 @@
   }
 
   function launchPaystack(PAYSTACK_KEY, amountNaira, entries, customer) {
-    const handler = PaystackPop.setup({
-      key: PAYSTACK_KEY,
-      email: customer.email,
-      amount: amountNaira * 100,
-      currency: 'NGN',
-      metadata: { custom_fields: [{ display_name: 'Customer', variable_name: 'customer_name', value: customer.name }] },
-      callback: async function (response) {
-        for (const en of entries) {
-          await saveBooking({ ...en, customer, paid: true, provider: 'paystack', txref: response.reference, status: 'confirmed' });
+    try {
+        if (!customer || !customer.email || !customer.email.includes('@')) {
+            alert("Paystack Error: Invalid Customer Email! Paystack strictly requires a valid email format (e.g. test@gmail.com). Please edit your booking details.");
+            return;
         }
-        result.innerHTML = '<h3>Payment successful</h3><p>Reference: ' + response.reference + '</p><p>Booking Confirmed! We have received your payment.</p>';
-      },
-      onClose: function () { alert('Payment window closed'); }
-    });
-    handler.openIframe();
+        if (!amountNaira || amountNaira <= 0) {
+            alert("Paystack Error: The total amount is ZERO! Please choose valid Check-In and Check-Out dates that are at least 1 day apart.");
+            return;
+        }
+
+        const handler = PaystackPop.setup({
+          key: PAYSTACK_KEY,
+          email: customer.email,
+          amount: amountNaira * 100,
+          currency: 'NGN',
+          metadata: { custom_fields: [{ display_name: 'Customer', variable_name: 'customer_name', value: customer.name }] },
+          callback: async function (response) {
+            alert("Paystack Successful! Saving to Database...");
+            try {
+              for (const en of entries) {
+                await saveBooking({ ...en, customer, paid: true, provider: 'paystack', txref: response.reference, status: 'confirmed' });
+              }
+              result.innerHTML = '<h3>Payment successful</h3><p>Reference: ' + response.reference + '</p><p>Booking Confirmed! We have received your payment.</p>';
+            } catch (err) {
+              alert("Error saving your payment: " + err.message);
+            }
+          },
+          onClose: function () { alert('Payment window closed securely.'); }
+        });
+
+        handler.openIframe();
+    } catch (crashError) {
+        alert("PAYSTACK CRASHED: " + crashError.message + "\nPlease try turning off any adblockers or use a different browser.");
+    }
   }
 
   function payWithFlutterwave(amountNaira, entries, customer) {
