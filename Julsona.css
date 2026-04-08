@@ -2263,3 +2263,87 @@ input:checked + .slider:before { transform: translateX(26px); }
     color: var(--text-color);
     border-color: var(--border-color);
 }
+
+/* =========================================
+   MOBILE OPTIMIZATION (max-width: 768px)
+   ========================================= */
+@media (max-width: 768px) {
+    /* Typographic Adjustments */
+    .hero-title {
+        font-size: 2.5rem !important;
+        line-height: 1.2;
+    }
+    
+    .hero-title-main { font-size: 28px !important; }
+    .hero-title-accent { font-size: 32px !important; }
+    .hero-subtitle { font-size: 16px !important; padding: 0 10px; }
+
+    h2 { font-size: 24px; margin-top: 40px; }
+
+    /* Layout & Grids */
+    .rooms-grid, 
+    .features, 
+    .experience-grid, 
+    .about-info, 
+    .footer-content {
+        grid-template-columns: 1fr !important;
+        justify-content: center;
+        gap: 20px;
+        padding: 0 15px;
+    }
+
+    .about-video, .about-text {
+        width: 100% !important;
+    }
+
+    .about-info { flex-direction: column !important; }
+
+    /* Forms */
+    .entry {
+        grid-template-columns: 1fr;
+    }
+
+    /* Buttons */
+    .actions {
+        flex-direction: column;
+    }
+    .btn {
+        width: 100%;
+        text-align: center;
+        margin-bottom: 10px;
+    }
+    
+    .login-btn {
+        padding: 8px 12px;
+        font-size: 14px;
+    }
+
+    /* Modals */
+    .modal-content, .auth-content {
+        width: 95% !important;
+        margin: 20% auto !important;
+        padding: 20px !important;
+    }
+
+    /* Videos & Images */
+    .about-video video, .room-card video {
+        width: 100% !important;
+        height: auto !important;
+    }
+
+    /* General Padding */
+    .rooms-section, .about-section, .experience-section, .contact {
+        padding: 40px 10px !important;
+    }
+
+    .hero-features {
+        flex-direction: column;
+        gap: 15px;
+    }
+}
+
+/* Very small screens */
+@media (max-width: 480px) {
+    .header .logo { font-size: 18px !important; }
+    .hero { padding-top: 60px; }
+}
