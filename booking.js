@@ -281,15 +281,18 @@
     });
   }
 
+  // Ensure Paystack SDK is globally loaded when this page initializes
+  if (!window.PaystackPop) {
+      const script = document.createElement('script');
+      script.src = "https://js.paystack.co/v1/inline.js";
+      document.head.appendChild(script);
+  }
+
   function payWithPaystack(amountNaira, entries, customer) {
     const PAYSTACK_KEY = 'pk_test_e8cee5063d1fc536fccfa92ed4a80a403651e814';
     
-    // Dynamically load Paystack SDK if it isn't already loaded in the HTML
-    if (!window.PaystackPop) { 
-        const script = document.createElement('script');
-        script.src = "https://js.paystack.co/v1/inline.js";
-        script.onload = () => launchPaystack(PAYSTACK_KEY, amountNaira, entries, customer);
-        document.head.appendChild(script);
+    if (!window.PaystackPop) {
+        alert("Payment gateway is still loading. Please check your internet connection or disable any strict AdBlockers, then click Pay again.");
         return;
     }
     
