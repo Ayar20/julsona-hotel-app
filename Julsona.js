@@ -40,10 +40,24 @@ CONTACT:
 function openAuthModal(tab = 'login') {
     document.getElementById('authModal').style.display = 'flex';
     switchAuthTab(tab);
+    // Check for password reset token in URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const resetToken = urlParams.get('reset');
+    if (resetToken) {
+        window._resetToken = resetToken;
+        switchAuthTab('reset');
+        document.getElementById('reset-step1').style.display = 'none';
+        document.getElementById('reset-step2').style.display = 'block';
+    }
 }
 
 function closeAuthModal() {
     document.getElementById('authModal').style.display = 'none';
+    // Reset signup to step 1
+    const step1 = document.getElementById('signup-step1-form');
+    const otpStep = document.getElementById('otp-step');
+    if (step1) step1.style.display = 'block';
+    if (otpStep) otpStep.style.display = 'none';
 }
 
 function switchAuthTab(tab) {
@@ -52,55 +66,107 @@ function switchAuthTab(tab) {
 
     if (tab === 'login') {
         document.getElementById('login-form').classList.add('active');
-        document.querySelector('.auth-tab[data-tab="login"]').classList.add('active');
+        const loginTab = document.querySelector('.auth-tab[data-tab="login"]');
+        if (loginTab) loginTab.classList.add('active');
     } else if (tab === 'signup') {
         document.getElementById('signup-form').classList.add('active');
-        document.querySelector('.auth-tab[data-tab="signup"]').classList.add('active');
+        const signupTab = document.querySelector('.auth-tab[data-tab="signup"]');
+        if (signupTab) signupTab.classList.add('active');
     } else if (tab === 'reset') {
         document.getElementById('reset-form').classList.add('active');
     }
 }
 
-function handleSignup(form) {
-    const fullName = form.querySelector('input[type="text"]').value;
-    const email = form.querySelector('input[type="email"]').value;
-    const password = form.querySelector('input[name="password"]').value;
-    const confirmPassword = form.querySelector('input[name="confirmPassword"]').value;
+// Toggle show/hide password
+function togglePassword(inputId, btn) {
+    const input = document.getElementById(inputId);
+    if (!input) return;
+    if (input.type === 'password') {
+        input.type = 'text';
+        btn.textContent = '🙈';
+    } else {
+        input.type = 'password';
+        btn.textContent = '👁';
+    }
+}
 
-    if (password !== confirmPassword) {
-        showMessage('Passwords do not match!', 'error');
-        return;
+// SIGN UP - Step 1: Send OTP
+async function sendSignupOTP(resend = false) {
+    const name = document.getElementById('signup-name').value.trim();
+    const email = document.getElementById('signup-email').value.trim();
+    const pw = document.getElementById('signup-password').value;
+    const cpw = document.getElementById('signup-confirm').value;
+
+    if (!resend) {
+        if (!name || !email || !pw) { showMessage('Please fill in all fields.', 'error'); return; }
+        if (pw !== cpw) { showMessage('Passwords do not match!', 'error'); return; }
+        if (pw.length < 6) { showMessage('Password must be at least 6 characters.', 'error'); return; }
+        const users = JSON.parse(localStorage.getItem('users') || '[]');
+        if (users.find(u => u.email === email)) { showMessage('An account already exists with this email.', 'error'); return; }
     }
 
-    // Check if user already exists
-    const users = JSON.parse(localStorage.getItem('users') || '[]');
-    if (users.find(user => user.email === email)) {
-        showMessage('User already exists with this email!', 'error');
-        return;
+    const btn = document.getElementById('send-otp-btn');
+    btn.disabled = true;
+    btn.textContent = 'Sending...';
+
+    try {
+        const res = await fetch('/api/auth/send-otp', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email })
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error);
+
+        // Show OTP step
+        document.getElementById('signup-step1-form').style.display = 'none';
+        document.getElementById('otp-step').style.display = 'block';
+        document.getElementById('otp-email-display').textContent = email;
+        showMessage('Verification code sent! Check your email inbox.', 'success');
+    } catch (err) {
+        showMessage(err.message || 'Failed to send code. Try again.', 'error');
+    } finally {
+        btn.disabled = false;
+        btn.textContent = 'Send Verification Code';
     }
+}
 
-    // Create new user
-    const user = {
-        fullName: fullName,
-        firstName: fullName.split(' ')[0],
-        email: email,
-        password: password // In a real app, this should be hashed
-    };
+// SIGN UP - Step 2: Verify OTP and create account
+async function verifyOTPAndCreateAccount() {
+    const email = document.getElementById('signup-email').value.trim();
+    const name = document.getElementById('signup-name').value.trim();
+    const password = document.getElementById('signup-password').value;
+    const code = document.getElementById('otp-input').value.trim();
 
-    users.push(user);
-    localStorage.setItem('users', JSON.stringify(users));
+    if (!code || code.length !== 6) { showMessage('Please enter the 6-digit code.', 'error'); return; }
 
-    // Auto login after signup
-    localStorage.setItem('currentUser', JSON.stringify(user));
+    try {
+        const res = await fetch('/api/auth/verify-otp', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, code, fullName: name, password })
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error);
 
-    showMessage('Account created successfully! Welcome ' + user.firstName + '!', 'success');
-    closeAuthModal();
-    updateAuthUI();
+        // Save user to localStorage and log them in
+        const user = { fullName: name, firstName: name.split(' ')[0], email, password };
+        const users = JSON.parse(localStorage.getItem('users') || '[]');
+        users.push(user);
+        localStorage.setItem('users', JSON.stringify(users));
+        localStorage.setItem('currentUser', JSON.stringify(user));
+
+        showMessage('Account created! Welcome, ' + user.firstName + '! 🎉', 'success');
+        closeAuthModal();
+        updateAuthUI();
+    } catch (err) {
+        showMessage(err.message || 'Verification failed. Try again.', 'error');
+    }
 }
 
 function handleLogin(form) {
-    const email = form.querySelector('input[type="email"]').value;
-    const password = form.querySelector('input[type="password"]').value;
+    const email = document.getElementById('login-email').value.trim();
+    const password = document.getElementById('login-password').value;
 
     const users = JSON.parse(localStorage.getItem('users') || '[]');
     const user = users.find(u => u.email === email && u.password === password);
@@ -115,17 +181,67 @@ function handleLogin(form) {
     }
 }
 
-function handlePasswordReset(form) {
-    const email = form.querySelector('input[type="email"]').value;
-    showMessage('Password reset link sent to ' + email, 'success');
-    switchAuthTab('login');
+// PASSWORD RESET - Step 1: Request email link
+async function requestPasswordReset() {
+    const email = document.getElementById('reset-email').value.trim();
+    if (!email) { showMessage('Please enter your email.', 'error'); return; }
+
+    try {
+        const res = await fetch('/api/auth/request-reset', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email })
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error);
+        showMessage('Reset link sent! Check your email inbox.', 'success');
+    } catch (err) {
+        showMessage(err.message || 'Failed to send reset link.', 'error');
+    }
+}
+
+// PASSWORD RESET - Step 2: Submit new password
+async function submitNewPassword() {
+    const pw = document.getElementById('new-password').value;
+    const cpw = document.getElementById('confirm-new-password').value;
+    const token = window._resetToken;
+
+    if (!pw || pw.length < 6) { showMessage('Password must be at least 6 characters.', 'error'); return; }
+    if (pw !== cpw) { showMessage('Passwords do not match!', 'error'); return; }
+    if (!token) { showMessage('Invalid reset session. Please request a new link.', 'error'); return; }
+
+    try {
+        const res = await fetch('/api/auth/reset-password', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ token, password: pw })
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error);
+
+        // Update password in localStorage
+        const users = JSON.parse(localStorage.getItem('users') || '[]');
+        const idx = users.findIndex(u => u.email === data.email);
+        if (idx !== -1) { users[idx].password = pw; localStorage.setItem('users', JSON.stringify(users)); }
+
+        showMessage('Password reset successfully! You can now log in.', 'success');
+        window._resetToken = null;
+        // Clean URL
+        window.history.replaceState({}, document.title, window.location.pathname);
+        switchAuthTab('login');
+        document.getElementById('reset-step1').style.display = 'block';
+        document.getElementById('reset-step2').style.display = 'none';
+    } catch (err) {
+        showMessage(err.message || 'Reset failed. Please request a new link.', 'error');
+    }
 }
 
 function checkLoginStatus() {
     const currentUser = JSON.parse(localStorage.getItem('currentUser'));
-    if (currentUser) {
-        updateAuthUI();
-    }
+    if (currentUser) { updateAuthUI(); }
+    // Auto-open reset modal if URL has reset token
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('reset')) { openAuthModal('reset'); }
 }
 
 function updateAuthUI() {
@@ -153,22 +269,18 @@ function logout() {
 }
 
 function showMessage(message, type) {
-    // Remove existing message
     const existingMessage = document.querySelector('.message');
-    if (existingMessage) {
-        existingMessage.remove();
-    }
+    if (existingMessage) existingMessage.remove();
 
     const messageElement = document.createElement('div');
     messageElement.className = `message ${type}`;
     messageElement.textContent = message;
-
     document.body.appendChild(messageElement);
 
     setTimeout(() => {
         messageElement.style.animation = 'slideOut 0.3s ease';
         setTimeout(() => messageElement.remove(), 300);
-    }, 3000);
+    }, 4000);
 }
 
 // Initialize auth functionality after header loads

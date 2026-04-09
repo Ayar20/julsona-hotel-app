@@ -4,7 +4,28 @@ const bodyParser = require('body-parser');
 const { Pool } = require('pg');
 const cloudinary = require('cloudinary').v2;
 const multer = require('multer');
+const nodemailer = require('nodemailer');
 require('dotenv').config();
+
+// In-memory stores for OTP and reset tokens (resets on server restart — acceptable for serverless)
+const otpStore = {};    // { email: { code, expires } }
+const resetStore = {};  // { token: { email, expires } }
+
+// Email transporter (uses Gmail App Password stored in env vars)
+const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS
+    }
+});
+
+function generateOTP() {
+    return Math.floor(100000 + Math.random() * 900000).toString();
+}
+function generateToken() {
+    return Math.random().toString(36).substring(2) + Date.now().toString(36);
+}
 
 // Configure Cloudinary
 cloudinary.config({
@@ -166,6 +187,103 @@ app.post('/api/upload', upload.single('media'), async (req, res) => {
         console.error('Cloudinary error:', error);
         res.status(500).json({ error: 'Failed to upload media' });
     }
+});
+
+// --- GUEST AUTH ENDPOINTS ---
+
+// POST /api/auth/send-otp  — sends a 6-digit code to the guest's email
+app.post('/api/auth/send-otp', async (req, res) => {
+    const { email } = req.body;
+    if (!email) return res.status(400).json({ error: 'Email is required' });
+
+    const code = generateOTP();
+    otpStore[email] = { code, expires: Date.now() + 10 * 60 * 1000 }; // 10 min
+
+    try {
+        await transporter.sendMail({
+            from: `"Julsona Hotels & Suites" <${process.env.EMAIL_USER}>`,
+            to: email,
+            subject: 'Your Julsona Hotels Verification Code',
+            html: `
+                <div style="font-family:Arial,sans-serif;max-width:500px;margin:auto;border:1px solid #ddd;border-radius:8px;overflow:hidden;">
+                    <div style="background:#0a2a43;padding:20px;text-align:center;">
+                        <h2 style="color:#b8860b;margin:0;">Julsona Hotels & Suites</h2>
+                    </div>
+                    <div style="padding:30px;">
+                        <p style="font-size:16px;">Your email verification code is:</p>
+                        <div style="font-size:40px;font-weight:bold;letter-spacing:10px;color:#0a2a43;text-align:center;padding:20px;background:#f8f8f8;border-radius:8px;">${code}</div>
+                        <p style="color:#888;font-size:13px;margin-top:20px;">This code expires in 10 minutes. If you did not request this, please ignore this email.</p>
+                    </div>
+                </div>`
+        });
+        res.json({ success: true, message: 'OTP sent successfully' });
+    } catch (err) {
+        console.error('Email error:', err);
+        res.status(500).json({ error: 'Failed to send email. Please check your email address.' });
+    }
+});
+
+// POST /api/auth/verify-otp  — verifies the code and creates the account
+app.post('/api/auth/verify-otp', async (req, res) => {
+    const { email, code, fullName, password } = req.body;
+    const record = otpStore[email];
+
+    if (!record) return res.status(400).json({ error: 'No OTP found for this email. Please request a new code.' });
+    if (Date.now() > record.expires) { delete otpStore[email]; return res.status(400).json({ error: 'OTP has expired. Please request a new code.' }); }
+    if (record.code !== code) return res.status(400).json({ error: 'Invalid verification code. Please try again.' });
+
+    delete otpStore[email]; // consume the token
+    res.json({ success: true, user: { email, fullName, firstName: fullName.split(' ')[0] } });
+});
+
+// POST /api/auth/request-reset  — sends a password reset link via email
+app.post('/api/auth/request-reset', async (req, res) => {
+    const { email } = req.body;
+    if (!email) return res.status(400).json({ error: 'Email is required' });
+
+    const token = generateToken();
+    resetStore[token] = { email, expires: Date.now() + 30 * 60 * 1000 }; // 30 min
+
+    // Determine origin dynamically
+    const origin = req.headers.origin || `https://julsona-hotel-app1.vercel.app`;
+    const resetLink = `${origin}/index.html?reset=${token}`;
+
+    try {
+        await transporter.sendMail({
+            from: `"Julsona Hotels & Suites" <${process.env.EMAIL_USER}>`,
+            to: email,
+            subject: 'Reset Your Julsona Hotels Password',
+            html: `
+                <div style="font-family:Arial,sans-serif;max-width:500px;margin:auto;border:1px solid #ddd;border-radius:8px;overflow:hidden;">
+                    <div style="background:#0a2a43;padding:20px;text-align:center;">
+                        <h2 style="color:#b8860b;margin:0;">Julsona Hotels & Suites</h2>
+                    </div>
+                    <div style="padding:30px;">
+                        <p style="font-size:16px;">You requested a password reset. Click the button below to set a new password:</p>
+                        <div style="text-align:center;margin:30px 0;">
+                            <a href="${resetLink}" style="background:#b8860b;color:#000;padding:14px 30px;border-radius:6px;text-decoration:none;font-weight:bold;font-size:16px;">Reset My Password</a>
+                        </div>
+                        <p style="color:#888;font-size:13px;">This link expires in 30 minutes. If you did not request this, please ignore this email.</p>
+                    </div>
+                </div>`
+        });
+        res.json({ success: true });
+    } catch (err) {
+        console.error('Email error:', err);
+        res.status(500).json({ error: 'Failed to send reset email.' });
+    }
+});
+
+// POST /api/auth/reset-password  — validates token and updates password
+app.post('/api/auth/reset-password', async (req, res) => {
+    const { token, password } = req.body;
+    const record = resetStore[token];
+
+    if (!record) return res.status(400).json({ error: 'Invalid or expired reset link.' });
+    if (Date.now() > record.expires) { delete resetStore[token]; return res.status(400).json({ error: 'Reset link has expired. Please request a new one.' }); }
+
+    delete resetStore[token];
+    res.json({ success: true, email: record.email });
 });
 
 // For local testing
