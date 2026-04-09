@@ -252,8 +252,15 @@ app.post('/api/auth/send-otp', async (req, res) => {
 
     try {
         await ensureAuthTables(pool);
+
+        // Check if user already exists
+        const existing = await pool.query('SELECT id FROM users WHERE LOWER(email)=LOWER($1)', [email.trim()]);
+        if (existing.rows.length > 0) {
+            return res.status(400).json({ error: 'An account with this email already exists. Please log in.' });
+        }
+
         const code = generateOTP();
-        await saveOTP(pool, email, code);
+        await saveOTP(pool, email.trim(), code);
 
         await transporter.sendMail({
             from: `"Julsona Hotels & Suites" <${process.env.EMAIL_USER}>`,
@@ -283,17 +290,17 @@ app.post('/api/auth/verify-otp', async (req, res) => {
     const { email, code, fullName, password } = req.body;
     try {
         await ensureAuthTables(pool);
-        const record = await getOTP(pool, email);
+        const record = await getOTP(pool, email.trim());
 
         if (!record) return res.status(400).json({ error: 'No OTP found for this email. Please request a new code.' });
         if (new Date() > new Date(record.expires_at)) {
-            await deleteOTP(pool, email);
+            await deleteOTP(pool, email.trim());
             return res.status(400).json({ error: 'OTP has expired. Please request a new code.' });
         }
         if (record.code !== code) return res.status(400).json({ error: 'Invalid verification code. Please try again.' });
 
         // Check if user already exists
-        const existing = await pool.query('SELECT id FROM users WHERE email=$1', [email]);
+        const existing = await pool.query('SELECT id FROM users WHERE LOWER(email)=LOWER($1)', [email.trim()]);
         if (existing.rows.length > 0) {
             return res.status(400).json({ error: 'An account with this email already exists. Please log in.' });
         }
@@ -301,12 +308,12 @@ app.post('/api/auth/verify-otp', async (req, res) => {
         // Create user in Neon DB
         await pool.query(
             'INSERT INTO users (full_name, email, password) VALUES ($1, $2, $3)',
-            [fullName, email, password]
+            [fullName, email.trim(), password]
         );
 
-        await deleteOTP(pool, email);
+        await deleteOTP(pool, email.trim());
         const firstName = fullName.split(' ')[0];
-        res.json({ success: true, user: { email, fullName, firstName } });
+        res.json({ success: true, user: { email: email.trim(), fullName, firstName } });
     } catch (err) {
         console.error('Verify OTP error:', err);
         res.status(500).json({ error: 'Verification failed. Please try again.' });
@@ -319,7 +326,8 @@ app.post('/api/auth/login', async (req, res) => {
     if (!email || !password) return res.status(400).json({ error: 'Email and password are required.' });
     try {
         await ensureAuthTables(pool);
-        const result = await pool.query('SELECT * FROM users WHERE email=$1', [email]);
+        // Case-insensitive email lookup
+        const result = await pool.query('SELECT * FROM users WHERE LOWER(email)=LOWER($1)', [email.trim()]);
         if (result.rows.length === 0) return res.status(401).json({ error: 'No account found with this email. Please sign up.' });
         const user = result.rows[0];
         if (user.password !== password) return res.status(401).json({ error: 'Incorrect password. Please try again.' });
@@ -335,7 +343,7 @@ app.post('/api/auth/update-password', async (req, res) => {
     const { email, password } = req.body;
     if (!email || !password) return res.status(400).json({ error: 'Missing fields.' });
     try {
-        await pool.query('UPDATE users SET password=$1 WHERE email=$2', [password, email]);
+        await pool.query('UPDATE users SET password=$1 WHERE LOWER(email)=LOWER($2)', [password, email.trim()]);
         res.json({ success: true });
     } catch (err) {
         console.error('Update password error:', err);
@@ -352,13 +360,13 @@ app.post('/api/auth/request-reset', async (req, res) => {
         await ensureAuthTables(pool);
 
         // Check if email is registered in DB
-        const userCheck = await pool.query('SELECT id FROM users WHERE email=$1', [email]);
+        const userCheck = await pool.query('SELECT id FROM users WHERE LOWER(email)=LOWER($1)', [email.trim()]);
         if (userCheck.rows.length === 0) {
             return res.status(404).json({ error: 'No account found with this email address. Please sign up first.' });
         }
 
         const token = generateToken();
-        await saveResetToken(pool, token, email);
+        await saveResetToken(pool, token, email.trim());
 
         const origin = req.headers.origin || `https://julsona-hotel-app1.vercel.app`;
         const resetLink = `${origin}/index.html?reset=${token}`;
@@ -402,9 +410,9 @@ app.post('/api/auth/reset-password', async (req, res) => {
         }
 
         // Update the password in Neon DB
-        await pool.query('UPDATE users SET password=$1 WHERE email=$2', [password, record.email]);
+        await pool.query('UPDATE users SET password=$1 WHERE LOWER(email)=LOWER($2)', [password, record.email.trim()]);
         await deleteResetToken(pool, token);
-        res.json({ success: true, email: record.email });
+        res.json({ success: true, email: record.email.trim() });
     } catch (err) {
         console.error('Reset password error:', err);
         res.status(500).json({ error: 'Reset failed. Please try again.' });

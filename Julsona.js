@@ -101,8 +101,6 @@ async function sendSignupOTP(resend = false) {
         if (!name || !email || !pw) { showMessage('Please fill in all fields.', 'error'); return; }
         if (pw !== cpw) { showMessage('Passwords do not match!', 'error'); return; }
         if (pw.length < 6) { showMessage('Password must be at least 6 characters.', 'error'); return; }
-        const users = JSON.parse(localStorage.getItem('users') || '[]');
-        if (users.find(u => u.email === email)) { showMessage('An account already exists with this email.', 'error'); return; }
     }
 
     const btn = document.getElementById('send-otp-btn');
