@@ -222,9 +222,16 @@ app.post('/api/upload', upload.single('media'), async (req, res) => {
 
 // --- GUEST AUTH ENDPOINTS ---
 
-// Ensure OTP/reset tables exist on first request
+// Ensure all auth tables exist on first request
 async function ensureAuthTables(pool) {
     await pool.query(`
+        CREATE TABLE IF NOT EXISTS users (
+            id SERIAL PRIMARY KEY,
+            full_name TEXT NOT NULL,
+            email TEXT UNIQUE NOT NULL,
+            password TEXT NOT NULL,
+            created_at TIMESTAMPTZ DEFAULT NOW()
+        );
         CREATE TABLE IF NOT EXISTS otp_tokens (
             email TEXT PRIMARY KEY,
             code TEXT NOT NULL,
@@ -271,7 +278,7 @@ app.post('/api/auth/send-otp', async (req, res) => {
     }
 });
 
-// POST /api/auth/verify-otp
+// POST /api/auth/verify-otp  — verify code THEN create account in DB
 app.post('/api/auth/verify-otp', async (req, res) => {
     const { email, code, fullName, password } = req.body;
     try {
@@ -285,11 +292,54 @@ app.post('/api/auth/verify-otp', async (req, res) => {
         }
         if (record.code !== code) return res.status(400).json({ error: 'Invalid verification code. Please try again.' });
 
+        // Check if user already exists
+        const existing = await pool.query('SELECT id FROM users WHERE email=$1', [email]);
+        if (existing.rows.length > 0) {
+            return res.status(400).json({ error: 'An account with this email already exists. Please log in.' });
+        }
+
+        // Create user in Neon DB
+        await pool.query(
+            'INSERT INTO users (full_name, email, password) VALUES ($1, $2, $3)',
+            [fullName, email, password]
+        );
+
         await deleteOTP(pool, email);
-        res.json({ success: true, user: { email, fullName, firstName: fullName.split(' ')[0] } });
+        const firstName = fullName.split(' ')[0];
+        res.json({ success: true, user: { email, fullName, firstName } });
     } catch (err) {
         console.error('Verify OTP error:', err);
         res.status(500).json({ error: 'Verification failed. Please try again.' });
+    }
+});
+
+// POST /api/auth/login  — validate credentials against Neon DB
+app.post('/api/auth/login', async (req, res) => {
+    const { email, password } = req.body;
+    if (!email || !password) return res.status(400).json({ error: 'Email and password are required.' });
+    try {
+        await ensureAuthTables(pool);
+        const result = await pool.query('SELECT * FROM users WHERE email=$1', [email]);
+        if (result.rows.length === 0) return res.status(401).json({ error: 'No account found with this email. Please sign up.' });
+        const user = result.rows[0];
+        if (user.password !== password) return res.status(401).json({ error: 'Incorrect password. Please try again.' });
+        res.json({ success: true, user: { email: user.email, fullName: user.full_name, firstName: user.full_name.split(' ')[0] } });
+    } catch (err) {
+        console.error('Login error:', err);
+        res.status(500).json({ error: 'Login failed. Please try again.' });
+    }
+});
+
+// POST /api/auth/update-password  — update password in DB after reset
+app.post('/api/auth/update-password', async (req, res) => {
+    const { email, password } = req.body;
+    if (!email || !password) return res.status(400).json({ error: 'Missing fields.' });
+    try {
+        await pool.query('UPDATE users SET password=$1 WHERE email=$2', [password, email]);
+        res.json({ success: true });
+    } catch (err) {
+        console.error('Update password error:', err);
+        res.status(500).json({ error: 'Failed to update password.' });
     }
 });
 
@@ -300,6 +350,13 @@ app.post('/api/auth/request-reset', async (req, res) => {
 
     try {
         await ensureAuthTables(pool);
+
+        // Check if email is registered in DB
+        const userCheck = await pool.query('SELECT id FROM users WHERE email=$1', [email]);
+        if (userCheck.rows.length === 0) {
+            return res.status(404).json({ error: 'No account found with this email address. Please sign up first.' });
+        }
+
         const token = generateToken();
         await saveResetToken(pool, token, email);
 
@@ -344,6 +401,8 @@ app.post('/api/auth/reset-password', async (req, res) => {
             return res.status(400).json({ error: 'Reset link has expired. Please request a new one.' });
         }
 
+        // Update the password in Neon DB
+        await pool.query('UPDATE users SET password=$1 WHERE email=$2', [password, record.email]);
         await deleteResetToken(pool, token);
         res.json({ success: true, email: record.email });
     } catch (err) {

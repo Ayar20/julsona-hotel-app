@@ -131,7 +131,7 @@ async function sendSignupOTP(resend = false) {
     }
 }
 
-// SIGN UP - Step 2: Verify OTP and create account
+// SIGN UP - Step 2: Verify OTP and create account in Neon DB
 async function verifyOTPAndCreateAccount() {
     const email = document.getElementById('signup-email').value.trim();
     const name = document.getElementById('signup-name').value.trim();
@@ -149,11 +149,8 @@ async function verifyOTPAndCreateAccount() {
         const data = await res.json();
         if (!res.ok) throw new Error(data.error);
 
-        // Save user to localStorage and log them in
-        const user = { fullName: name, firstName: name.split(' ')[0], email, password };
-        const users = JSON.parse(localStorage.getItem('users') || '[]');
-        users.push(user);
-        localStorage.setItem('users', JSON.stringify(users));
+        // Save session to localStorage (session only, not user list)
+        const user = { fullName: name, firstName: name.split(' ')[0], email };
         localStorage.setItem('currentUser', JSON.stringify(user));
 
         showMessage('Account created! Welcome, ' + user.firstName + '! 🎉', 'success');
@@ -164,36 +161,36 @@ async function verifyOTPAndCreateAccount() {
     }
 }
 
-function handleLogin(form) {
+// LOGIN — validate against Neon DB
+async function handleLogin(form) {
     const email = document.getElementById('login-email').value.trim();
     const password = document.getElementById('login-password').value;
 
-    const users = JSON.parse(localStorage.getItem('users') || '[]');
-    const user = users.find(u => u.email === email && u.password === password);
+    if (!email || !password) { showMessage('Please enter your email and password.', 'error'); return; }
 
-    if (user) {
-        localStorage.setItem('currentUser', JSON.stringify(user));
-        showMessage('Welcome back, ' + user.firstName + '!', 'success');
+    try {
+        const res = await fetch('/api/auth/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password })
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error);
+
+        // Store session only (no password stored client-side)
+        localStorage.setItem('currentUser', JSON.stringify(data.user));
+        showMessage('Welcome back, ' + data.user.firstName + '!', 'success');
         closeAuthModal();
         updateAuthUI();
-    } else {
-        showMessage('Invalid email or password!', 'error');
+    } catch (err) {
+        showMessage(err.message || 'Login failed. Please try again.', 'error');
     }
 }
 
-// PASSWORD RESET - Step 1: Request email link
+// PASSWORD RESET - Step 1: Request email link (backend checks DB)
 async function requestPasswordReset() {
     const email = document.getElementById('reset-email').value.trim();
     if (!email) { showMessage('Please enter your email.', 'error'); return; }
-
-    // Check if the email is registered in localStorage
-    const users = JSON.parse(localStorage.getItem('users') || '[]');
-    const userExists = users.find(u => u.email.toLowerCase() === email.toLowerCase());
-
-    if (!userExists) {
-        showMessage('No account found with this email address. Please sign up first.', 'error');
-        return;
-    }
 
     try {
         const res = await fetch('/api/auth/request-reset', {
@@ -209,7 +206,7 @@ async function requestPasswordReset() {
     }
 }
 
-// PASSWORD RESET - Step 2: Submit new password
+// PASSWORD RESET - Step 2: Submit new password (updates in Neon DB)
 async function submitNewPassword() {
     const pw = document.getElementById('new-password').value;
     const cpw = document.getElementById('confirm-new-password').value;
@@ -228,14 +225,8 @@ async function submitNewPassword() {
         const data = await res.json();
         if (!res.ok) throw new Error(data.error);
 
-        // Update password in localStorage
-        const users = JSON.parse(localStorage.getItem('users') || '[]');
-        const idx = users.findIndex(u => u.email === data.email);
-        if (idx !== -1) { users[idx].password = pw; localStorage.setItem('users', JSON.stringify(users)); }
-
         showMessage('Password reset successfully! You can now log in.', 'success');
         window._resetToken = null;
-        // Clean URL
         window.history.replaceState({}, document.title, window.location.pathname);
         switchAuthTab('login');
         document.getElementById('reset-step1').style.display = 'block';
