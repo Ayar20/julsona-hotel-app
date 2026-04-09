@@ -7,11 +7,7 @@ const multer = require('multer');
 const nodemailer = require('nodemailer');
 require('dotenv').config();
 
-// In-memory stores for OTP and reset tokens (resets on server restart — acceptable for serverless)
-const otpStore = {};    // { email: { code, expires } }
-const resetStore = {};  // { token: { email, expires } }
-
-// Email transporter (uses Gmail App Password stored in env vars)
+// Email transporter
 const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
@@ -26,6 +22,41 @@ function generateOTP() {
 function generateToken() {
     return Math.random().toString(36).substring(2) + Date.now().toString(36);
 }
+
+// DB-backed OTP helpers (stored in Neon so serverless instances share state)
+async function saveOTP(pool, email, code) {
+    const expires = new Date(Date.now() + 10 * 60 * 1000); // 10 min
+    await pool.query(
+        `INSERT INTO otp_tokens (email, code, expires_at)
+         VALUES ($1, $2, $3)
+         ON CONFLICT (email) DO UPDATE SET code=$2, expires_at=$3`,
+        [email, code, expires]
+    );
+}
+async function getOTP(pool, email) {
+    const res = await pool.query('SELECT * FROM otp_tokens WHERE email=$1', [email]);
+    return res.rows[0] || null;
+}
+async function deleteOTP(pool, email) {
+    await pool.query('DELETE FROM otp_tokens WHERE email=$1', [email]);
+}
+
+// DB-backed reset token helpers
+async function saveResetToken(pool, token, email) {
+    const expires = new Date(Date.now() + 30 * 60 * 1000); // 30 min
+    await pool.query(
+        `INSERT INTO reset_tokens (token, email, expires_at) VALUES ($1, $2, $3)`,
+        [token, email, expires]
+    );
+}
+async function getResetToken(pool, token) {
+    const res = await pool.query('SELECT * FROM reset_tokens WHERE token=$1', [token]);
+    return res.rows[0] || null;
+}
+async function deleteResetToken(pool, token) {
+    await pool.query('DELETE FROM reset_tokens WHERE token=$1', [token]);
+}
+
 
 // Configure Cloudinary
 cloudinary.config({
@@ -191,15 +222,32 @@ app.post('/api/upload', upload.single('media'), async (req, res) => {
 
 // --- GUEST AUTH ENDPOINTS ---
 
-// POST /api/auth/send-otp  — sends a 6-digit code to the guest's email
+// Ensure OTP/reset tables exist on first request
+async function ensureAuthTables(pool) {
+    await pool.query(`
+        CREATE TABLE IF NOT EXISTS otp_tokens (
+            email TEXT PRIMARY KEY,
+            code TEXT NOT NULL,
+            expires_at TIMESTAMPTZ NOT NULL
+        );
+        CREATE TABLE IF NOT EXISTS reset_tokens (
+            token TEXT PRIMARY KEY,
+            email TEXT NOT NULL,
+            expires_at TIMESTAMPTZ NOT NULL
+        );
+    `);
+}
+
+// POST /api/auth/send-otp
 app.post('/api/auth/send-otp', async (req, res) => {
     const { email } = req.body;
     if (!email) return res.status(400).json({ error: 'Email is required' });
 
-    const code = generateOTP();
-    otpStore[email] = { code, expires: Date.now() + 10 * 60 * 1000 }; // 10 min
-
     try {
+        await ensureAuthTables(pool);
+        const code = generateOTP();
+        await saveOTP(pool, email, code);
+
         await transporter.sendMail({
             from: `"Julsona Hotels & Suites" <${process.env.EMAIL_USER}>`,
             to: email,
@@ -218,37 +266,46 @@ app.post('/api/auth/send-otp', async (req, res) => {
         });
         res.json({ success: true, message: 'OTP sent successfully' });
     } catch (err) {
-        console.error('Email error:', err);
+        console.error('Send OTP error:', err);
         res.status(500).json({ error: 'Failed to send email. Please check your email address.' });
     }
 });
 
-// POST /api/auth/verify-otp  — verifies the code and creates the account
+// POST /api/auth/verify-otp
 app.post('/api/auth/verify-otp', async (req, res) => {
     const { email, code, fullName, password } = req.body;
-    const record = otpStore[email];
+    try {
+        await ensureAuthTables(pool);
+        const record = await getOTP(pool, email);
 
-    if (!record) return res.status(400).json({ error: 'No OTP found for this email. Please request a new code.' });
-    if (Date.now() > record.expires) { delete otpStore[email]; return res.status(400).json({ error: 'OTP has expired. Please request a new code.' }); }
-    if (record.code !== code) return res.status(400).json({ error: 'Invalid verification code. Please try again.' });
+        if (!record) return res.status(400).json({ error: 'No OTP found for this email. Please request a new code.' });
+        if (new Date() > new Date(record.expires_at)) {
+            await deleteOTP(pool, email);
+            return res.status(400).json({ error: 'OTP has expired. Please request a new code.' });
+        }
+        if (record.code !== code) return res.status(400).json({ error: 'Invalid verification code. Please try again.' });
 
-    delete otpStore[email]; // consume the token
-    res.json({ success: true, user: { email, fullName, firstName: fullName.split(' ')[0] } });
+        await deleteOTP(pool, email);
+        res.json({ success: true, user: { email, fullName, firstName: fullName.split(' ')[0] } });
+    } catch (err) {
+        console.error('Verify OTP error:', err);
+        res.status(500).json({ error: 'Verification failed. Please try again.' });
+    }
 });
 
-// POST /api/auth/request-reset  — sends a password reset link via email
+// POST /api/auth/request-reset
 app.post('/api/auth/request-reset', async (req, res) => {
     const { email } = req.body;
     if (!email) return res.status(400).json({ error: 'Email is required' });
 
-    const token = generateToken();
-    resetStore[token] = { email, expires: Date.now() + 30 * 60 * 1000 }; // 30 min
-
-    // Determine origin dynamically
-    const origin = req.headers.origin || `https://julsona-hotel-app1.vercel.app`;
-    const resetLink = `${origin}/index.html?reset=${token}`;
-
     try {
+        await ensureAuthTables(pool);
+        const token = generateToken();
+        await saveResetToken(pool, token, email);
+
+        const origin = req.headers.origin || `https://julsona-hotel-app1.vercel.app`;
+        const resetLink = `${origin}/index.html?reset=${token}`;
+
         await transporter.sendMail({
             from: `"Julsona Hotels & Suites" <${process.env.EMAIL_USER}>`,
             to: email,
@@ -269,21 +326,30 @@ app.post('/api/auth/request-reset', async (req, res) => {
         });
         res.json({ success: true });
     } catch (err) {
-        console.error('Email error:', err);
+        console.error('Reset request error:', err);
         res.status(500).json({ error: 'Failed to send reset email.' });
     }
 });
 
-// POST /api/auth/reset-password  — validates token and updates password
+// POST /api/auth/reset-password
 app.post('/api/auth/reset-password', async (req, res) => {
     const { token, password } = req.body;
-    const record = resetStore[token];
+    try {
+        await ensureAuthTables(pool);
+        const record = await getResetToken(pool, token);
 
-    if (!record) return res.status(400).json({ error: 'Invalid or expired reset link.' });
-    if (Date.now() > record.expires) { delete resetStore[token]; return res.status(400).json({ error: 'Reset link has expired. Please request a new one.' }); }
+        if (!record) return res.status(400).json({ error: 'Invalid or expired reset link.' });
+        if (new Date() > new Date(record.expires_at)) {
+            await deleteResetToken(pool, token);
+            return res.status(400).json({ error: 'Reset link has expired. Please request a new one.' });
+        }
 
-    delete resetStore[token];
-    res.json({ success: true, email: record.email });
+        await deleteResetToken(pool, token);
+        res.json({ success: true, email: record.email });
+    } catch (err) {
+        console.error('Reset password error:', err);
+        res.status(500).json({ error: 'Reset failed. Please try again.' });
+    }
 });
 
 // For local testing
