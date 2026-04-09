@@ -186,6 +186,15 @@ async function requestPasswordReset() {
     const email = document.getElementById('reset-email').value.trim();
     if (!email) { showMessage('Please enter your email.', 'error'); return; }
 
+    // Check if the email is registered in localStorage
+    const users = JSON.parse(localStorage.getItem('users') || '[]');
+    const userExists = users.find(u => u.email.toLowerCase() === email.toLowerCase());
+
+    if (!userExists) {
+        showMessage('No account found with this email address. Please sign up first.', 'error');
+        return;
+    }
+
     try {
         const res = await fetch('/api/auth/request-reset', {
             method: 'POST',
