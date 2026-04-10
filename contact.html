@@ -6,6 +6,23 @@
     <link rel="icon" href="Julsona Logo.jpg" type="image/jpeg">
     <link rel="stylesheet" href="Julsona.css">
     <title>Contact Us - Julsona Hotels & Suites</title>
+    <style>
+        .contact-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            align-items: start;
+        }
+        @media (max-width: 768px) {
+            .contact-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            .contact-container {
+                padding: 20px !important;
+            }
+        }
+    </style>
 </head>
 <body>
     <div id="header-placeholder"></div>
@@ -17,10 +34,10 @@
                 We'd love to hear from you. For reservations, inquiries, or feedback, please reach out to us.
             </p>
 
-            <div class="contact-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: start;">
+            <div class="contact-grid">
                 <div class="contact-info">
                     <h3 style="color: #0a2a43; border-bottom: 2px solid #b8860b; padding-bottom: 10px; margin-bottom: 20px;">Contact Information</h3>
-                    <p><strong>Address:</strong><br> Julsona Hotels & Suites, Behind Modern Market, Makurdi, Benue State, Nigeria.</p>
+                    <p><strong>Address:</strong><br> Julsona Hotels & Suites, Behind NKST Idye, Off Katsina Ala Street, High Level, Makurdi, Benue State, Nigeria.</p>
                     <p><strong>Phone:</strong><br> +234 801 234 5678</p>
                     <p><strong>Email:</strong><br> <a href="mailto:reservations@julsonahotels.com" style="color: #b8860b;">reservations@julsonahotels.com</a></p>
                     
