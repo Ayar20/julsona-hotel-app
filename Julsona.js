@@ -1,5 +1,14 @@
 // Julsona.js - Main Application Logic
 
+// --- PWA SERVICE WORKER REGISTRATION ---
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js')
+      .then(reg => console.log('[PWA] Service Worker registered:', reg.scope))
+      .catch(err => console.warn('[PWA] Service Worker registration failed:', err));
+  });
+}
+
 // --- CHATBOT CONFIGURATION ---
 const GEMINI_API_KEY = 'AIzaSyCjW6natRsJe-uTagaQHCGFllQ6xD2p5VU';
 const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`;
