@@ -2284,7 +2284,7 @@ input:checked + .slider:before { transform: translateX(26px); }
     .hero-content {
         margin: 0;
         padding: 0.5rem;
-        margin-top: -45px;
+        margin-top: -48px;
     }
 
     .brand-title {
