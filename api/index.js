@@ -250,6 +250,11 @@ app.post('/api/auth/send-otp', async (req, res) => {
     const { email } = req.body;
     if (!email) return res.status(400).json({ error: 'Email is required' });
 
+    if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
+        console.error('Missing EMAIL_USER or EMAIL_PASS environment variables.');
+        return res.status(500).json({ error: 'Server configuration error: Email credentials are not set.' });
+    }
+
     try {
         await ensureAuthTables(pool);
 
@@ -281,7 +286,7 @@ app.post('/api/auth/send-otp', async (req, res) => {
         res.json({ success: true, message: 'OTP sent successfully' });
     } catch (err) {
         console.error('Send OTP error:', err);
-        res.status(500).json({ error: 'Failed to send email. Please check your email address.' });
+        res.status(500).json({ error: 'Failed to send email. Error: ' + err.message });
     }
 });
 
@@ -356,6 +361,11 @@ app.post('/api/auth/request-reset', async (req, res) => {
     const { email } = req.body;
     if (!email) return res.status(400).json({ error: 'Email is required' });
 
+    if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
+        console.error('Missing EMAIL_USER or EMAIL_PASS environment variables.');
+        return res.status(500).json({ error: 'Server configuration error: Email credentials are not set.' });
+    }
+
     try {
         await ensureAuthTables(pool);
 
@@ -392,7 +402,7 @@ app.post('/api/auth/request-reset', async (req, res) => {
         res.json({ success: true });
     } catch (err) {
         console.error('Reset request error:', err);
-        res.status(500).json({ error: 'Failed to send reset email.' });
+        res.status(500).json({ error: 'Failed to send reset email. Error: ' + err.message });
     }
 });
 
