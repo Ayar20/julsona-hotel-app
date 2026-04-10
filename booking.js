@@ -410,8 +410,35 @@
     });
   }
 
+  // Pre-fill customer details if logged in
+  function prefillCustomerDetails() {
+    const currentUserRaw = localStorage.getItem('currentUser');
+    if (currentUserRaw) {
+      try {
+        const currentUser = JSON.parse(currentUserRaw);
+        const nameInput = document.getElementById('customerName');
+        const emailInput = document.getElementById('customerEmail');
+        if (nameInput && currentUser.fullName) nameInput.value = currentUser.fullName;
+        if (emailInput && currentUser.email) emailInput.value = currentUser.email;
+      } catch (e) {
+        console.error("Error parsing user data", e);
+      }
+    }
+  }
+  prefillCustomerDetails();
+
   form.addEventListener('submit', async function (e) {
     e.preventDefault();
+    
+    const currentUserRaw = localStorage.getItem('currentUser');
+    if (!currentUserRaw) {
+      alert('You must be logged in to book a room. Please sign in or create an account first.');
+      if (typeof window.openAuthModal === 'function') {
+        window.openAuthModal('login');
+      }
+      return;
+    }
+
     const customerName = document.getElementById('customerName').value.trim();
     const customerEmail = document.getElementById('customerEmail').value.trim();
     if (!customerName || !customerEmail) { alert('Please enter your name and email'); return; }
