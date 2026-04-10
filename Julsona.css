@@ -511,7 +511,8 @@ h2 {
 /* Responsive adjustments */
 @media (max-width: 768px) {
     .hero {
-        height: 100vh;
+        min-height: 100vh;
+        height: auto;
         padding: 1rem;
     }
 
@@ -603,7 +604,7 @@ h2 {
     }
 
     .hero {
-        padding-top: 80px;
+        padding-top: 120px;
     }
 }
 
