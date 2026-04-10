@@ -48,7 +48,7 @@ h2 {
     position: fixed;
     width: 100%;
     top: 0;
-    z-index: 10;
+    z-index: 1000;
     box-sizing: border-box;
     flex-wrap: nowrap;
     gap: 20px;
