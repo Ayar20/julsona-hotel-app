@@ -513,9 +513,9 @@ h2 {
     .hero {
         min-height: 100vh;
         height: auto;
-        padding: 1rem;
+        padding: 0.5rem;
         align-items: flex-start;
-        padding-top: 70px;
+        padding-top: 10px;
     }
 
     .hero-title {
@@ -606,7 +606,7 @@ h2 {
     }
 
     .hero {
-        padding-top: 70px;
+        padding-top: 10px;
     }
 }
 
@@ -2282,8 +2282,9 @@ input:checked + .slider:before { transform: translateX(26px); }
     .hero-subtitle { font-size: 16px !important; padding: 0 10px; }
 
     .hero-content {
-        margin: 0.5rem;
-        padding: 1.5rem 1rem;
+        margin: 0;
+        padding: 0.5rem;
+        margin-top: 10px;
     }
 
     .brand-title {
